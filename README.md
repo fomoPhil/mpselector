@@ -77,6 +77,8 @@ A newer version usually works. The page tells you when Phil has not tested it.
 
 Dropping a firmware's own folder into `firmware` does not work. Each one needs a small start script written for MP Selector, and the page adds it for you.
 
+From MP Selector 1.1, a firmware can ship its own MP Selector folder. The page adds those too, whoever made them. Developers: see [Make your firmware work with MP Selector](docs/DEVELOPERS.md).
+
 **Firmware that cannot open yet.** SampQOL OS, GRIDZILLA, Am MOD, RHYTHMER OS, MaiaOS, MINIMOD and KAOSAMPLE are made for Akai firmware 1.3.0.12. MP Selector 1.0.1 runs on 1.4.0.8, where they do not start. The page names them and says so.
 
 Prefer a terminal? `node importer/cli.mjs <release.zip> <card folder>` does the same thing.
@@ -92,13 +94,14 @@ Each cover is a folder inside `firmware` on the card. The folder's name is its I
 | `name` | Yes | The title shown on screen. First line only. |
 | `run.sh` | Yes | The script that starts the firmware. |
 | `cover.rgb565` | No | The cover art. 96 × 96 pixels, RGB565, little-endian. Exactly 18,432 bytes. |
+| `akai` | From 1.1 | The Akai firmware versions it runs on, one per line. For example `1.4.0.8`. |
 | `caption` | No | One short line under the title. Plain ASCII. |
 | `unavailable` | No | One line. The cover shows this message and does not open. |
 | `SHA256SUMS` | No | If it is there, every file is checked before the firmware starts. |
 
 When you press the dial, MP Selector copies the folder into memory, because the card cannot run programs. It stops the Akai app and runs `sh ./run.sh <card path> <log file>` as root from that copy. Files whose names start with a dot are not copied. When the script ends, Cover Flow comes back.
 
-**What opens on 1.4.0.8.** Version 1.0.1 is strict on this firmware.
+**What opens on 1.4.0.8.** From version 1.1, any folder whose `akai` file lists `1.4.0.8` opens. The full rules are in [docs/DEVELOPERS.md](docs/DEVELOPERS.md). Version 1.0.1 is strict:
 
 - Folders named `mp-doom`, `pad-lights`, `melodee` and `mpc-simple` open.
 - `melodee` and `mpc-simple` also need a `SHA256SUMS` file that lists their files.

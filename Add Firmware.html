@@ -355,6 +355,64 @@ const READY = [
   },
 ];
 
+// The Akai firmware MP Selector runs on. An entry's akai file must list it.
+const AKAI = '1.4.0.8';
+const rows = (bytes) => decode(bytes).split('\n').map((row) => row.replace(/\r$/, '')).filter(Boolean);
+
+// A release that ships its own entry: firmware/<id>/ with name, run.sh and akai.
+// Returns null when the ZIP has no such folder.
+async function shipped(zip) {
+  const hit = zip.names().map((n) => n.match(/^(.*\/)?firmware\/([^/]+)\/run\.sh$/)).find(Boolean);
+  if (!hit) return null;
+  const id = hit[2];
+  const from = `${hit[1] || ''}firmware/${id}/`;
+  const has = (name) => zip.has(from + name);
+  const problems = [];
+  if (!/^[a-z0-9][a-z0-9-]{0,31}$/.test(id) || id === 'akai') {
+    problems.push(`The folder name "${id}" must be lowercase letters, numbers and dashes, 32 at most, and not "akai".`);
+  }
+  let name = id;
+  if (!has('name')) problems.push('name is missing. It holds the title shown on screen.');
+  else if (!(name = (rows(await zip.read(from + 'name'))[0] || '').trim())) problems.push('name is empty.');
+  let versions = [];
+  if (!has('akai')) problems.push(`akai is missing. It lists the Akai firmware versions this runs on, one per line, such as ${AKAI}.`);
+  else {
+    versions = rows(await zip.read(from + 'akai'));
+    if (!versions.length || versions.some((v) => !/^\d+(\.\d+){3}$/.test(v))) {
+      problems.push(`akai must hold only version numbers, one per line, such as ${AKAI}.`);
+    }
+  }
+  if (decode(await zip.read(from + 'run.sh')).includes('\r')) {
+    problems.push('run.sh has Windows line endings. Save it with Unix (LF) line endings.');
+  }
+  if (has('cover.rgb565') && (await zip.read(from + 'cover.rgb565')).length !== 96 * 96 * 2) {
+    problems.push('cover.rgb565 must be 96 x 96 pixels, RGB565 little-endian: exactly 18,432 bytes.');
+  }
+  if (has('caption') && !/^[\x20-\x7e]*$/.test(rows(await zip.read(from + 'caption'))[0] || '')) {
+    problems.push('caption must be plain ASCII.');
+  }
+  if (has('SHA256SUMS')) {
+    for (const row of rows(await zip.read(from + 'SHA256SUMS'))) {
+      const file = row.slice(66);
+      if (!/^[0-9a-f]{64}  [^/]+$/.test(row)) problems.push(`SHA256SUMS has a line it cannot use: ${row}`);
+      else if (!has(file)) problems.push(`SHA256SUMS lists ${file}, which is not in the folder.`);
+      else if (sha256(await zip.read(from + file)) !== row.slice(0, 64)) problems.push(`SHA256SUMS does not match ${file}.`);
+    }
+  }
+  if (problems.length) {
+    return { status: 'blocked', name, reason: `firmware/${id} is not ready for MP Selector.`, problems };
+  }
+  const files = [];
+  for (const member of zip.names().sort()) {
+    if (member.startsWith(from)) files.push([`firmware/${id}/${member.slice(from.length)}`, await zip.read(member)]);
+  }
+  return {
+    status: 'ready', id, name, home: '', version: '', tested: false, testedVersions: [], files, keep: [],
+    warn: versions.includes(AKAI) ? '' :
+      `It lists Akai firmware ${versions.join(', ')}. MP Selector runs on ${AKAI}, where its cover shows a message and does not open.`,
+  };
+}
+
 const OLD = 'It is made for Akai firmware 1.3.0.12. MP Selector 1.0.1 runs on 1.4.0.8, so it cannot open here yet.';
 const LATER = 'It has not been set up for MP Selector yet.';
 
@@ -392,8 +450,8 @@ function known(zip) {
 }
 
 // Decide what to do with a release ZIP.
-//   { status: 'ready', id, name, version, tested, files, keep }
-//   { status: 'blocked', name, reason }
+//   { status: 'ready', id, name, version, tested, files, keep, warn }
+//   { status: 'blocked', name, reason, problems }
 async function plan(zip, archiveSha, assets) {
   for (const recipe of READY) {
     const root = await recipe.match(zip);
@@ -405,8 +463,12 @@ async function plan(zip, archiveSha, assets) {
       version: tested || built.version, tested: !!tested,
       testedVersions: Object.values(recipe.tested),
       files: built.files, keep: built.keep || [],
+      warn: tested ? '' :
+        `Phil has not tested this version. Tested: ${Object.values(recipe.tested).join(', ')}. It should work, but if it does not, use that version.`,
     };
   }
+  const own = await shipped(zip);
+  if (own) return own;
   const found = known(zip);
   if (found) return { status: 'blocked', name: found.name, reason: found.reason };
   const card = rootOf(zip, 'autorun/autorun.json');
@@ -414,7 +476,7 @@ async function plan(zip, archiveSha, assets) {
     status: 'blocked', name: '',
     reason: card == null
       ? 'This ZIP does not look like MPC Sample firmware. Use the ZIP you downloaded from the firmware\'s own page.'
-      : 'This firmware is not one MP Selector knows yet, so it cannot open from the menu.',
+      : 'This firmware is not one MP Selector knows yet, and it does not ship an MP Selector folder, so it cannot open from the menu.',
   };
 }
 
@@ -456,7 +518,7 @@ $('foot').append('Works with ', ...SUPPORTED.flatMap((s, i) => {
   link.target = '_blank';
   link.rel = 'noopener';
   return i ? [' and ', link] : [link];
-}), '. Download the ZIP from its own page first.');
+}), ', and with any firmware made for MP Selector. Download the ZIP from its own page first.');
 
 function handleSink(root) {
   const walk = async (path, create) => {
@@ -520,9 +582,7 @@ function ready(result) {
   else zip.className = 'go';
   row.append(zip);
   const parts = [el('h2', `${result.name} ${result.version}`.trim())];
-  if (!result.tested) {
-    parts.push(el('p', `Phil has not tested this version. Tested: ${result.testedVersions.join(', ')}. It should work, but if it does not, use that version.`, 'warn'));
-  }
+  if (result.warn) parts.push(el('p', result.warn, 'warn'));
   show(...parts, row, status);
 }
 
@@ -532,7 +592,8 @@ async function load(file) {
     const hash = await sha256Blob(file);
     const result = await plan(await Zip.open(file), hash, assets);
     if (result.status === 'ready') return ready(result);
-    show(...(result.name ? [el('h2', result.name)] : []), el('p', result.reason, 'bad'));
+    show(...(result.name ? [el('h2', result.name)] : []), el('p', result.reason, 'bad'),
+      ...(result.problems || []).map((problem) => el('p', problem)));
   } catch (error) {
     show(el('p', error.message, 'bad'));
   }
