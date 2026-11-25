@@ -1,4 +1,4 @@
-MP SELECTOR 1.0.1
+MP SELECTOR 1.1.0
 For Akai MPC Sample running firmware 1.4.0.8
 
 Pick what runs by its cover. Turn the dial on your MPC and press it.
@@ -28,11 +28,15 @@ What to press
    In Cover Flow, a Power tap opens Shutdown. B1 cancels. B3 confirms.
 
 Add firmware
-   MP Selector does not include other firmware. Download the firmware's ZIP
-   from its maker and leave it zipped. Open philwoolley.com/mpselector/add,
-   drop the ZIP on the page and press Add to card. It works with Melodee and MPC Simple.
-   Copying a firmware's own folder into "firmware" does not work.
-   https://github.com/fomoPhil/mpselector#add-firmware
+   MP Selector does not include other firmware. Download a firmware's ZIP
+   from its maker and leave it zipped. Open "Add Firmware.html" from this
+   download, or philwoolley.com/mpselector/add, drop the ZIP on the page and
+   press Add to card. It adds Melodee and MPC Simple today.
+
+   A firmware that ships its own "firmware" folder for MP Selector can also
+   be unzipped straight onto the card. Merge its "firmware" folder with yours.
+
+   For firmware makers: https://github.com/fomoPhil/mpselector
 
 If you see the stock sampler
    Check the exact Akai version and the Developer Mode switch. From stock,

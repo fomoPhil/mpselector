@@ -70,6 +70,17 @@ save_favorites() (
     cat "$FAVORITES_OUT" > "$temp" && mount_matches && mv -f "$temp" .favorites && sync
 )
 
+# launch.sh has already checked the stock app for this exact version.
+AKAI=1.4.0.8
+
+made_for() {
+    [ -f "$FW/$choice/akai" ] && tr -d '\r' < "$FW/$choice/akai" | grep -qxF "$1"
+}
+
+made_for_first() {
+    [ -f "$FW/$choice/akai" ] && tr -d '\r' < "$FW/$choice/akai" | sed -n '/^[0-9][0-9.]*$/{p;q;}'
+}
+
 stage_verified() {
     manifest=$STAGE/SHA256SUMS
     case "$choice" in
@@ -121,11 +132,22 @@ while mount_matches; do
         last=$choice
         continue
     fi
-    if [ "$BOOT_MODE" = --developer-mode ]; then
+    # An entry opens when its akai file lists this Akai firmware, one version per line.
+    if [ "$BOOT_MODE" = --developer-mode ] && ! made_for "$AKAI"; then
         case "$choice" in
             akai|mp-doom|pad-lights|melodee|mpc-simple) ;;
-            sampqol|gridzilla) message="Requires Akai firmware 1.3.0.12"; last=$choice; continue ;;
-            *) message="Not verified on Akai firmware 1.4"; last=$choice; continue ;;
+            *)
+                need=$(made_for_first)
+                case "$need:$choice" in
+                    :sampqol|:gridzilla) need=1.3.0.12 ;;
+                esac
+                if [ -n "$need" ]; then
+                    message="Requires Akai firmware $need"
+                else
+                    message="Not verified on Akai firmware 1.4"
+                fi
+                last=$choice
+                continue ;;
         esac
     fi
     if [ "$choice" != "$last" ]; then

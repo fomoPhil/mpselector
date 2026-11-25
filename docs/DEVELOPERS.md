@@ -1,6 +1,6 @@
 # Make your firmware work with MP Selector
 
-This page is for people who build firmware, mods or apps for the Akai MPC Sample. It needs MP Selector 1.1, which is in testing and not out yet. The format below is what 1.1 uses. Small details may still change until it ships.
+This page is for people who build firmware, mods or apps for the Akai MPC Sample. It needs MP Selector 1.1 or later.
 
 Add one folder to your release ZIP and your project opens from Cover Flow. Your users unzip your release onto their MP Selector card, or drop the ZIP on the [Add Firmware page](https://philwoolley.com/mpselector/add/). They never touch a script.
 
