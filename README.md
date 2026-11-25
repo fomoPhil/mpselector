@@ -89,7 +89,7 @@ When you press the dial, MP Selector copies the folder into memory, because the 
 | --- | --- | --- |
 | [MPC Simple](https://sourceforge.net/projects/mpcsimple/) | Mike Feedback | Load your samples and make a beat. |
 | [Melodee](https://github.com/keremimo/melodee-sample) | Kerem | Make a song with up to 16 tracks. |
-| [SampQOL OS](https://github.com/snarebes/SampQOL-OS) | snarebes | A free mod for the MPC Sample, made for firmware 1.3.0.12. |
+| [SampQOL OS](https://github.com/snarebes/SampQOL-OS) | snarebes | Adds up to 16 drum tracks, a step sequencer, a mixer with effects, 128-slice chop and stem export to the stock sampler. Free, in beta, made for firmware 1.3.0.12. |
 
 These projects belong to their creators. MP Selector does not include them, install them or speak for them.
 
