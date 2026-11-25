@@ -480,12 +480,12 @@ async function shipped(zip) {
   return {
     status: 'ready', id, name, home: '', version: '', tested: false, testedVersions: [], files, keep: [],
     warn: versions.includes(AKAI)
-      ? 'This opens from MP Selector 1.1, which is still in testing. On 1.0.1 its cover shows "Not verified".'
+      ? 'It needs MP Selector 1.1 or later on your card. On 1.0.1 its cover shows "Not verified".'
       : `It lists Akai firmware ${versions.join(', ')}. MP Selector runs on ${AKAI}, where its cover shows a message and does not open.`,
   };
 }
 
-const OLD = 'It is made for Akai firmware 1.3.0.12. MP Selector 1.0.1 runs on 1.4.0.8, so it cannot open here yet.';
+const OLD = 'It is made for Akai firmware 1.3.0.12. MP Selector runs on 1.4.0.8, so it cannot open here yet.';
 const LATER = 'It has not been set up for MP Selector yet.';
 
 // Firmware this tool can name but not add. [marker file, name, reason].

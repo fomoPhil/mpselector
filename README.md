@@ -10,7 +10,7 @@ The whole thing on one page: [quick guide](docs/guide.png).
 
 ## Download
 
-**[Download MP-Selector-1.0.1.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.0.1.zip)**
+**[Download MP-Selector-1.1.0.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.1.0.zip)**
 
 Tested on MPC Sample firmware **1.4.0.8**. The checksum is on the [release page](https://github.com/fomoPhil/mpselector/releases/latest).
 
@@ -64,7 +64,7 @@ You can also shut down, take the card out and turn the MPC back on.
 MP Selector is the menu. It does not come with other firmware. You download the firmware from its maker, then add it to your card with the [Add Firmware page](https://philwoolley.com/mpselector/add/).
 
 1. Download the firmware's ZIP from its own page. Leave it zipped.
-2. Open [philwoolley.com/mpselector/add](https://philwoolley.com/mpselector/add/). It works in your browser. The ZIP stays on your computer and nothing is uploaded.
+2. Open [philwoolley.com/mpselector/add](https://philwoolley.com/mpselector/add/), or `Add Firmware.html` from the download. It works in your browser. The ZIP stays on your computer and nothing is uploaded.
 3. Drop the ZIP on the page.
 4. Press **Add to card** and pick your card. In Safari or Firefox, press **Download as ZIP**, unzip it and copy what is inside to the top of your card.
 
@@ -77,9 +77,9 @@ A newer version usually works. The page tells you when Phil has not tested it.
 
 Dropping a firmware's own folder into `firmware` does not work. Each one needs a small start script written for MP Selector, and the page adds it for you.
 
-MP Selector 1.1 is in testing. From 1.1, a firmware can ship its own MP Selector folder. The page adds those too, whoever made them. Developers: see [Make your firmware work with MP Selector](docs/DEVELOPERS.md).
+A firmware can also ship its own MP Selector folder. The page adds those too, whoever made them, and they open on MP Selector 1.1 or later. Developers: see [Make your firmware work with MP Selector](docs/DEVELOPERS.md).
 
-**Firmware that cannot open yet.** SampQOL OS, GRIDZILLA, Am MOD, RHYTHMER OS, MaiaOS, MINIMOD and KAOSAMPLE are made for Akai firmware 1.3.0.12. MP Selector 1.0.1 runs on 1.4.0.8, where they do not start. The page names them and says so.
+**Firmware that cannot open yet.** SampQOL OS, GRIDZILLA, Am MOD, RHYTHMER OS, MaiaOS, MINIMOD and KAOSAMPLE are made for Akai firmware 1.3.0.12. MP Selector runs on 1.4.0.8, where they do not start. The page names them and says so.
 
 If the page does not know a firmware, press **Request this firmware** and Phil gets the request.
 
@@ -96,19 +96,21 @@ Each cover is a folder inside `firmware` on the card. The folder's name is its I
 | `name` | Yes | The title shown on screen. First line only. |
 | `run.sh` | Yes | The script that starts the firmware. |
 | `cover.rgb565` | No | The cover art. 96 × 96 pixels, RGB565, little-endian. Exactly 18,432 bytes. |
-| `akai` | From 1.1 | The Akai firmware versions it runs on, one per line. For example `1.4.0.8`. |
+| `akai` | For a new folder | The Akai firmware versions it runs on, one per line. For example `1.4.0.8`. |
 | `caption` | No | One short line under the title. Plain ASCII. |
 | `unavailable` | No | One line. The cover shows this message and does not open. |
 | `SHA256SUMS` | No | If it is there, every file is checked before the firmware starts. |
 
 When you press the dial, MP Selector copies the folder into memory, because the card cannot run programs. It stops the Akai app and runs `sh ./run.sh <card path> <log file>` as root from that copy. Files whose names start with a dot are not copied. When the script ends, Cover Flow comes back.
 
-**What opens on 1.4.0.8.** From version 1.1, any folder whose `akai` file lists `1.4.0.8` opens. The full rules are in [docs/DEVELOPERS.md](docs/DEVELOPERS.md). Version 1.0.1 is strict:
+**What opens on 1.4.0.8.**
 
-- Folders named `mp-doom`, `pad-lights`, `melodee` and `mpc-simple` open.
-- `melodee` and `mpc-simple` also need a `SHA256SUMS` file that lists their files.
-- `sampqol` and `gridzilla` show "Requires Akai firmware 1.3.0.12".
+- Any folder whose `akai` file lists `1.4.0.8`. The full rules are in [docs/DEVELOPERS.md](docs/DEVELOPERS.md).
+- Folders named `mp-doom`, `pad-lights`, `melodee` and `mpc-simple`, with or without an `akai` file. `melodee` and `mpc-simple` also need a `SHA256SUMS` file that lists their files.
+- A folder whose `akai` file lists only other versions shows "Requires Akai firmware" and the first version it lists. `sampqol` and `gridzilla` show that for 1.3.0.12.
 - Any other folder shows "Not verified on Akai firmware 1.4" and stays in Cover Flow.
+
+Version 1.0.1 opens only the four named folders.
 
 ## Firmware people use
 
