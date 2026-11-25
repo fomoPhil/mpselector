@@ -91,8 +91,21 @@ async function load(file) {
     const hash = await sha256Blob(file);
     const result = await plan(await Zip.open(file), hash, assets);
     if (result.status === 'ready') return ready(result);
-    show(...(result.name ? [el('h2', result.name)] : []), el('p', result.reason, 'bad'),
-      ...(result.problems || []).map((problem) => el('p', problem)));
+    const parts = [...(result.name ? [el('h2', result.name)] : []), el('p', result.reason, 'bad'),
+      ...(result.problems || []).map((problem) => el('p', problem))];
+    if (result.request) {
+      // Opens a GitHub issue the person can read before sending. Nothing is sent from here.
+      const ask = el('a', 'Ask Phil to add it');
+      ask.href = 'https://github.com/fomoPhil/mpselector/issues/new?' + new URLSearchParams({
+        title: `Firmware request: ${result.name || file.name}`,
+        body: `File: ${file.name}\nSHA-256: ${hash}\n\nWhere I downloaded it:\n`,
+      });
+      ask.target = '_blank';
+      ask.rel = 'noopener';
+      parts.push(el('p', ''));
+      parts.at(-1).append(ask);
+    }
+    show(...parts);
   } catch (error) {
     show(el('p', error.message, 'bad'));
   }

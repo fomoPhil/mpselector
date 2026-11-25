@@ -82,6 +82,8 @@ test('firmware that cannot open is named, with the reason', async () => {
   assert.match(qol.reason, /1\.3\.0\.12/);
   const other = await plan(await zipOf({ 'autorun/autorun.json': '{}' }), 'x', assets);
   assert.match(other.reason, /not one MP Selector knows/);
+  assert.equal(other.request, true);
+  assert.ok(!qol.request);
   const junk = await plan(await zipOf({ 'holiday.jpg': 'x' }), 'x', assets);
   assert.match(junk.reason, /does not look like/);
 });
@@ -96,7 +98,8 @@ test('a release that ships its own MP Selector folder is copied as it is', async
     'Thing-1.2/firmware/thing/.data/big.bin': 'data',
   });
   const result = await plan(zip, 'x', assets);
-  assert.deepEqual([result.status, result.id, result.name, result.warn], ['ready', 'thing', 'Thing', '']);
+  assert.deepEqual([result.status, result.id, result.name], ['ready', 'thing', 'Thing']);
+  assert.match(result.warn, /1\.1/);
   assert.deepEqual(result.files.map(([path]) => path).sort(), ['.data/big.bin', 'akai', 'name', 'run.sh', 'thing']
     .map((name) => 'firmware/thing/' + name));
 });

@@ -133,8 +133,9 @@ async function shipped(zip) {
   }
   return {
     status: 'ready', id, name, home: '', version: '', tested: false, testedVersions: [], files, keep: [],
-    warn: versions.includes(AKAI) ? '' :
-      `It lists Akai firmware ${versions.join(', ')}. MP Selector runs on ${AKAI}, where its cover shows a message and does not open.`,
+    warn: versions.includes(AKAI)
+      ? 'This opens from MP Selector 1.1, which is still in testing. On 1.0.1 its cover shows "Not verified".'
+      : `It lists Akai firmware ${versions.join(', ')}. MP Selector runs on ${AKAI}, where its cover shows a message and does not open.`,
   };
 }
 
@@ -176,7 +177,7 @@ function known(zip) {
 
 // Decide what to do with a release ZIP.
 //   { status: 'ready', id, name, version, tested, files, keep, warn }
-//   { status: 'blocked', name, reason, problems }
+//   { status: 'blocked', name, reason, problems, request }  request: worth asking Phil for
 export async function plan(zip, archiveSha, assets) {
   for (const recipe of READY) {
     const root = await recipe.match(zip);
@@ -195,10 +196,10 @@ export async function plan(zip, archiveSha, assets) {
   const own = await shipped(zip);
   if (own) return own;
   const found = known(zip);
-  if (found) return { status: 'blocked', name: found.name, reason: found.reason };
+  if (found) return { status: 'blocked', name: found.name, reason: found.reason, request: found.reason === LATER };
   const card = rootOf(zip, 'autorun/autorun.json');
   return {
-    status: 'blocked', name: '',
+    status: 'blocked', name: '', request: card != null,
     reason: card == null
       ? 'This ZIP does not look like MPC Sample firmware. Use the ZIP you downloaded from the firmware\'s own page.'
       : 'This firmware is not one MP Selector knows yet, and it does not ship an MP Selector folder, so it cannot open from the menu.',

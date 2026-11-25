@@ -61,10 +61,10 @@ You can also shut down, take the card out and turn the MPC back on.
 
 ## Add firmware
 
-MP Selector is the menu. It does not come with other firmware. You download the firmware from its maker, then add it to your card with `Add Firmware.html`.
+MP Selector is the menu. It does not come with other firmware. You download the firmware from its maker, then add it to your card with the [Add Firmware page](https://philwoolley.com/mpselector/add/).
 
 1. Download the firmware's ZIP from its own page. Leave it zipped.
-2. Open `Add Firmware.html` from the MP Selector download. It runs on your computer and needs no internet.
+2. Open [philwoolley.com/mpselector/add](https://philwoolley.com/mpselector/add/). It works in your browser. The ZIP stays on your computer and nothing is uploaded.
 3. Drop the ZIP on the page.
 4. Press **Add to card** and pick your card. In Safari or Firefox, press **Download as ZIP**, unzip it and copy what is inside to the top of your card.
 
@@ -77,9 +77,11 @@ A newer version usually works. The page tells you when Phil has not tested it.
 
 Dropping a firmware's own folder into `firmware` does not work. Each one needs a small start script written for MP Selector, and the page adds it for you.
 
-From MP Selector 1.1, a firmware can ship its own MP Selector folder. The page adds those too, whoever made them. Developers: see [Make your firmware work with MP Selector](docs/DEVELOPERS.md).
+MP Selector 1.1 is in testing. From 1.1, a firmware can ship its own MP Selector folder. The page adds those too, whoever made them. Developers: see [Make your firmware work with MP Selector](docs/DEVELOPERS.md).
 
 **Firmware that cannot open yet.** SampQOL OS, GRIDZILLA, Am MOD, RHYTHMER OS, MaiaOS, MINIMOD and KAOSAMPLE are made for Akai firmware 1.3.0.12. MP Selector 1.0.1 runs on 1.4.0.8, where they do not start. The page names them and says so.
+
+If the page does not know a firmware, it gives you a link to ask Phil for it.
 
 Prefer a terminal? `node importer/cli.mjs <release.zip> <card folder>` does the same thing.
 
@@ -140,7 +142,7 @@ This makes a new `sd-files` folder with the same files as `SD Card Files` in the
 | --- | --- |
 | `selector/` | Cover Flow, the launcher scripts and the Akai cover |
 | `doom/` | Screen and control code shared with [MP DOOM](https://github.com/fomoPhil/mp-doom) |
-| `importer/` | The source of `Add Firmware.html`. Rebuild it with `node importer/build.mjs` |
+| `importer/` | The source of the Add Firmware page, `Add Firmware.html`. Rebuild it with `node importer/build.mjs` |
 | `docs/` | README images and the source of the quick guide |
 
 The source for the compiler runtime and C library is in the `Source` archive inside the release ZIP.

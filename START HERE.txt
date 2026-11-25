@@ -29,8 +29,8 @@ What to press
 
 Add firmware
    MP Selector does not include other firmware. Download the firmware's ZIP
-   from its maker and leave it zipped. Open "Add Firmware.html", drop the ZIP
-   on the page and press Add to card. It works with Melodee and MPC Simple.
+   from its maker and leave it zipped. Open philwoolley.com/mpselector/add,
+   drop the ZIP on the page and press Add to card. It works with Melodee and MPC Simple.
    Copying a firmware's own folder into "firmware" does not work.
    https://github.com/fomoPhil/mpselector#add-firmware
 
