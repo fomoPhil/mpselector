@@ -30,7 +30,7 @@ What to press
 Your own firmware
    Each entry is a folder inside "firmware" on the card. MP Selector does not
    include or install any. The folder format is described at
-   https://github.com/fomoPhil/mp-selector#add-your-own-firmware
+   https://github.com/fomoPhil/mpselector#add-your-own-firmware
 
 If you see the stock sampler
    Check the exact Akai version and the Developer Mode switch. From stock,
