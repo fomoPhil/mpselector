@@ -1,0 +1,99 @@
+// node --test importer/test.mjs
+import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, readFile, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { test } from 'node:test';
+import { build } from './build.mjs';
+import { folderSink, loadAssets } from './cli.mjs';
+import { Zip, sha256, storeZip, sums, utf8 } from './engine.mjs';
+import { apply, plan } from './recipes.mjs';
+
+const assets = await loadAssets();
+const zipOf = (files) => Zip.open(storeZip(Object.entries(files).map(([k, v]) => [k, utf8(v)])));
+const RESTORE = 'rmmod panel\nexec /bin/systemctl start ac50.service\n';
+const melodee = (extra = {}) => zipOf({
+  'autorun.sh': '#!/bin/sh\n',
+  'autorun/melodee/app': 'melodee\n',
+  'autorun/melodee/sample-base': 'ELF',
+  'autorun/melodee/VERSION': 'v9.9.9 abc\n',
+  'autorun/melodee/restore-stock.sh': RESTORE,
+  'autorun/melodee/stems/weights.f16': 'weights',
+  'autorun/melodee/licenses/A.txt': 'licence',
+  'autorun/melodee/sd-worker.sh': 'not copied',
+  ...extra,
+});
+
+test('sha256 matches known vectors across block boundaries', () => {
+  assert.equal(sha256(utf8('abc')), 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+  assert.equal(sha256(utf8('a'.repeat(119))), '31eba51c313a5c08226adf18d4a359cfdfd8d2e816b13f4af952f7ea6584dcfb');
+});
+
+test('Melodee becomes an entry the selector accepts', async () => {
+  const result = await plan(await melodee(), 'unknown', assets);
+  assert.equal(result.status, 'ready');
+  assert.equal(result.version, 'v9.9.9');
+  assert.equal(result.tested, false);
+  const files = new Map(result.files);
+  const listed = new TextDecoder().decode(files.get('firmware/melodee/SHA256SUMS'));
+  for (const name of ['name', 'run.sh', 'sample-base', 'restore-selector.sh', 'stems.sha256', 'caption']) {
+    assert.match(listed, new RegExp(`^[0-9a-f]{64}  ${name.replace('.', '\\.')}$`, 'm'));
+  }
+  const restore = new TextDecoder().decode(files.get('firmware/melodee/restore-selector.sh'));
+  assert.ok(restore.startsWith('rmmod panel\n') && restore.endsWith('exit 0\n') && !restore.includes('ac50'));
+  assert.equal(new TextDecoder().decode(files.get('firmware/melodee/stems.sha256')),
+    `${sha256(utf8('weights'))}  stems/weights.f16\n`);
+  assert.ok(files.has('firmware/melodee/.release/licenses/A.txt'));
+  assert.ok(![...files.keys()].some((path) => path.includes('sd-worker')));
+  assert.equal(files.get('firmware/melodee/cover.rgb565').length, 96 * 96 * 2);
+});
+
+test('a Melodee that restores stock differently is refused', async () => {
+  const zip = await melodee({ 'autorun/melodee/restore-stock.sh': 'reboot\n' });
+  await assert.rejects(plan(zip, 'x', assets), /shuts down/);
+});
+
+test('MPC Simple is found inside its wrapper folder and keeps an existing model', async () => {
+  const zip = await zipOf({
+    'MPC-Simple-1.0-Beta-99/SD Card/autorun/mpcsimple': 'ELF',
+    'MPC-Simple-1.0-Beta-99/SD Card/MPC-Simple/Models/spleeter-4stems.mpcsnn': 'new model',
+  });
+  const result = await plan(zip, 'x', assets);
+  assert.equal(result.version, '1.0 Beta 99');
+  const card = await mkdtemp(join(tmpdir(), 'mp-selector-'));
+  try {
+    await assert.rejects(apply(result, folderSink(card)), /not an MP Selector card/);
+    const sink = folderSink(card);
+    await sink.write('autorun/x', utf8(''));
+    await sink.write('firmware/mpc-simple/stale', utf8(''));
+    await sink.write('MPC-Simple/Models/spleeter-4stems.mpcsnn', utf8('on card'));
+    await apply(result, sink);
+    assert.deepEqual((await readdir(join(card, 'firmware/mpc-simple'))).sort(),
+      ['SHA256SUMS', 'app.sh', 'caption', 'cover.rgb565', 'mpcsimple', 'name', 'run.sh']);
+    assert.equal(await readFile(join(card, 'MPC-Simple/Models/spleeter-4stems.mpcsnn'), 'utf8'), 'on card');
+  } finally {
+    await rm(card, { recursive: true });
+  }
+});
+
+test('firmware that cannot open is named, with the reason', async () => {
+  const qol = await plan(await zipOf({ 'SampQOL-OS-v0.4.2/autorun/mpcqol.so': 'x' }), 'x', assets);
+  assert.deepEqual([qol.status, qol.name], ['blocked', 'SampQOL OS']);
+  assert.match(qol.reason, /1\.3\.0\.12/);
+  const other = await plan(await zipOf({ 'autorun/autorun.json': '{}' }), 'x', assets);
+  assert.match(other.reason, /not one MP Selector knows/);
+  const junk = await plan(await zipOf({ 'holiday.jpg': 'x' }), 'x', assets);
+  assert.match(junk.reason, /does not look like/);
+});
+
+test('checksum list covers top-level files only, sorted by name', () => {
+  const list = new TextDecoder().decode(sums([['firmware/a/z', utf8('1')], ['firmware/a/b', utf8('2')],
+    ['firmware/a/.release/c', utf8('3')], ['firmware/other/d', utf8('4')]], 'firmware/a'));
+  assert.deepEqual(list.trim().split('\n').map((row) => row.slice(66)), ['b', 'z']);
+});
+
+test('the committed page is the current build and needs nothing else', async () => {
+  const page = await build();
+  assert.equal(page, await readFile(new URL('../Add Firmware.html', import.meta.url), 'utf8'));
+  assert.ok(!/<script[^>]+src=|<link|https?:\/\/[^"']*\.(js|css)/.test(page));
+});

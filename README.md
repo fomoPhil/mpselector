@@ -14,7 +14,7 @@ The whole thing on one page: [quick guide](docs/guide.png).
 
 Tested on MPC Sample firmware **1.4.0.8**. The checksum is on the [release page](https://github.com/fomoPhil/mpselector/releases/latest).
 
-The download has one cover, **Akai**. It does not include or install any other firmware. You [add your own](#add-your-own-firmware).
+The download has one cover, **Akai**. It does not include or install any other firmware. You [add your own](#add-firmware).
 
 ## Set up your card
 
@@ -59,9 +59,31 @@ If Akai asks to run the card script again, press the right button, **No**. That 
 
 You can also shut down, take the card out and turn the MPC back on.
 
-## Add your own firmware
+## Add firmware
 
-MP Selector is the menu. It does not come with other firmware and it does not install any. This part is for people who are comfortable with shell scripts.
+MP Selector is the menu. It does not come with other firmware. You download the firmware from its maker, then add it to your card with `Add Firmware.html`.
+
+1. Download the firmware's ZIP from its own page. Leave it zipped.
+2. Open `Add Firmware.html` from the MP Selector download. It runs on your computer and needs no internet.
+3. Drop the ZIP on the page.
+4. Press **Add to card** and pick your card. In Safari or Firefox, press **Download as ZIP**, unzip it and copy what is inside to the top of your card.
+
+| Firmware | Tested version | Notes |
+| --- | --- | --- |
+| [Melodee](https://github.com/keremimo/melodee-sample/releases) | 0.8.2 | |
+| [MPC Simple](https://sourceforge.net/projects/mpcsimple/files/) | 1.0 Beta 10 | Its stem model goes in `MPC-Simple/Models` on the card. |
+
+A newer version usually works. The page tells you when Phil has not tested it.
+
+Dropping a firmware's own folder into `firmware` does not work. Each one needs a small start script written for MP Selector, and the page adds it for you.
+
+**Firmware that cannot open yet.** SampQOL OS, GRIDZILLA, Am MOD, RHYTHMER OS, MaiaOS, MINIMOD and KAOSAMPLE are made for Akai firmware 1.3.0.12. MP Selector 1.0.1 runs on 1.4.0.8, where they do not start. The page names them and says so.
+
+Prefer a terminal? `node importer/cli.mjs <release.zip> <card folder>` does the same thing.
+
+## Make your own cover
+
+This part is for people who are comfortable with shell scripts.
 
 Each cover is a folder inside `firmware` on the card. The folder's name is its ID.
 
@@ -97,7 +119,7 @@ These projects belong to their creators. MP Selector does not include them, inst
 
 - **You see the Akai sampler, not Cover Flow.** Check that your MPC is on 1.4.0.8 and Developer Mode is on. Save your work, then put the card in again.
 - **No prompt appears.** Check that `autorun.sh` is at the top of the card, next to `autorun` and `firmware`.
-- **Cover Flow shows only Akai.** That is normal on a new card. See [Add your own firmware](#add-your-own-firmware).
+- **Cover Flow shows only Akai.** That is normal on a new card. See [Add firmware](#add-firmware).
 
 `START HERE.txt` in the download has the same steps.
 
@@ -115,6 +137,7 @@ This makes a new `sd-files` folder with the same files as `SD Card Files` in the
 | --- | --- |
 | `selector/` | Cover Flow, the launcher scripts and the Akai cover |
 | `doom/` | Screen and control code shared with [MP DOOM](https://github.com/fomoPhil/mp-doom) |
+| `importer/` | The source of `Add Firmware.html`. Rebuild it with `node importer/build.mjs` |
 | `docs/` | README images and the source of the quick guide |
 
 The source for the compiler runtime and C library is in the `Source` archive inside the release ZIP.
