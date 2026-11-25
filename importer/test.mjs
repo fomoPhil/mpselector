@@ -82,8 +82,48 @@ test('firmware that cannot open is named, with the reason', async () => {
   assert.match(qol.reason, /1\.3\.0\.12/);
   const other = await plan(await zipOf({ 'autorun/autorun.json': '{}' }), 'x', assets);
   assert.match(other.reason, /not one MP Selector knows/);
+  assert.equal(other.request, true);
+  assert.ok(!qol.request);
   const junk = await plan(await zipOf({ 'holiday.jpg': 'x' }), 'x', assets);
   assert.match(junk.reason, /does not look like/);
+});
+
+test('a release that ships its own MP Selector folder is copied as it is', async () => {
+  const zip = await zipOf({
+    'Thing-1.2/autorun/autorun.json': '{}',
+    'Thing-1.2/firmware/thing/name': 'Thing\r\n',
+    'Thing-1.2/firmware/thing/run.sh': '#!/bin/sh\nexec ./thing\n',
+    'Thing-1.2/firmware/thing/akai': '1.4.0.7\n1.4.0.8\n',
+    'Thing-1.2/firmware/thing/thing': 'ELF',
+    'Thing-1.2/firmware/thing/.data/big.bin': 'data',
+  });
+  const result = await plan(zip, 'x', assets);
+  assert.deepEqual([result.status, result.id, result.name], ['ready', 'thing', 'Thing']);
+  assert.match(result.warn, /1\.1/);
+  assert.deepEqual(result.files.map(([path]) => path).sort(), ['.data/big.bin', 'akai', 'name', 'run.sh', 'thing']
+    .map((name) => 'firmware/thing/' + name));
+});
+
+test('a shipped folder for another Akai firmware is added with a warning', async () => {
+  const zip = await zipOf({ 'firmware/old/name': 'Old', 'firmware/old/run.sh': 'true\n', 'firmware/old/akai': '1.3.0.12\n' });
+  const result = await plan(zip, 'x', assets);
+  assert.equal(result.status, 'ready');
+  assert.match(result.warn, /1\.3\.0\.12/);
+});
+
+test('a shipped folder with mistakes is refused, and each mistake is named', async () => {
+  const zip = await zipOf({
+    'firmware/My Thing/run.sh': '#!/bin/sh\r\n',
+    'firmware/My Thing/akai': 'any\n',
+    'firmware/My Thing/cover.rgb565': 'short',
+    'firmware/My Thing/SHA256SUMS': `${'0'.repeat(64)}  run.sh\n${'0'.repeat(64)}  gone\n`,
+  });
+  const result = await plan(zip, 'x', assets);
+  assert.equal(result.status, 'blocked');
+  for (const part of [/folder name/, /name is missing/, /akai must hold/, /Windows line endings/, /18,432/,
+    /does not match run\.sh/, /lists gone/]) {
+    assert.ok(result.problems.some((problem) => part.test(problem)), String(part));
+  }
 });
 
 test('checksum list covers top-level files only, sorted by name', () => {

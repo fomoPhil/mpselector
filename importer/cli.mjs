@@ -47,10 +47,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const result = await importZip(archive, card);
     if (result.status !== 'ready') {
       console.error([result.name, result.reason].filter(Boolean).join(': '));
+      for (const problem of result.problems || []) console.error('- ' + problem);
       process.exit(1);
     }
     console.log(`Added ${result.name} ${result.version}`.trim());
-    if (!result.tested) console.log(`Not tested with this version. Tested: ${result.testedVersions.join(', ')}.`);
+    if (result.warn) console.log(result.warn);
   } catch (error) {
     console.error(error.message);
     process.exit(1);

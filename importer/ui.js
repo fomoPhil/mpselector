@@ -17,7 +17,7 @@ $('foot').append('Works with ', ...SUPPORTED.flatMap((s, i) => {
   link.target = '_blank';
   link.rel = 'noopener';
   return i ? [' and ', link] : [link];
-}), '. Download the ZIP from its own page first.');
+}), ', and with any firmware made for MP Selector. Download the ZIP from its own page first.');
 
 function handleSink(root) {
   const walk = async (path, create) => {
@@ -81,9 +81,7 @@ function ready(result) {
   else zip.className = 'go';
   row.append(zip);
   const parts = [el('h2', `${result.name} ${result.version}`.trim())];
-  if (!result.tested) {
-    parts.push(el('p', `Phil has not tested this version. Tested: ${result.testedVersions.join(', ')}. It should work, but if it does not, use that version.`, 'warn'));
-  }
+  if (result.warn) parts.push(el('p', result.warn, 'warn'));
   show(...parts, row, status);
 }
 
@@ -93,7 +91,21 @@ async function load(file) {
     const hash = await sha256Blob(file);
     const result = await plan(await Zip.open(file), hash, assets);
     if (result.status === 'ready') return ready(result);
-    show(...(result.name ? [el('h2', result.name)] : []), el('p', result.reason, 'bad'));
+    const parts = [...(result.name ? [el('h2', result.name)] : []), el('p', result.reason, 'bad'),
+      ...(result.problems || []).map((problem) => el('p', problem))];
+    if (result.request) {
+      // Opens a GitHub issue the person can read before sending. Nothing is sent from here.
+      const ask = el('a', 'Ask Phil to add it');
+      ask.href = 'https://github.com/fomoPhil/mpselector/issues/new?' + new URLSearchParams({
+        title: `Firmware request: ${result.name || file.name}`,
+        body: `File: ${file.name}\nSHA-256: ${hash}\n\nWhere I downloaded it:\n`,
+      });
+      ask.target = '_blank';
+      ask.rel = 'noopener';
+      parts.push(el('p', ''));
+      parts.at(-1).append(ask);
+    }
+    show(...parts);
   } catch (error) {
     show(el('p', error.message, 'bad'));
   }
