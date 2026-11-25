@@ -591,21 +591,44 @@ async function load(file) {
   show(el('p', 'Reading the ZIP'));
   try {
     const hash = await sha256Blob(file);
-    const result = await plan(await Zip.open(file), hash, assets);
+    const zip = await Zip.open(file);
+    const names = zip.names();
+    const result = await plan(zip, hash, assets);
     if (result.status === 'ready') return ready(result);
     const parts = [...(result.name ? [el('h2', result.name)] : []), el('p', result.reason, 'bad'),
       ...(result.problems || []).map((problem) => el('p', problem))];
     if (result.request) {
-      // Opens a GitHub issue the person can read before sending. Nothing is sent from here.
-      const ask = el('a', 'Ask Phil to add it');
-      ask.href = 'https://github.com/fomoPhil/mpselector/issues/new?' + new URLSearchParams({
+      const link = 'https://github.com/fomoPhil/mpselector/issues/new?' + new URLSearchParams({
         title: `Firmware request: ${result.name || file.name}`,
         body: `File: ${file.name}\nSHA-256: ${hash}\n\nWhere I downloaded it:\n`,
       });
-      ask.target = '_blank';
-      ask.rel = 'noopener';
-      parts.push(el('p', ''));
-      parts.at(-1).append(ask);
+      const ask = el('button', 'Request this firmware', 'go');
+      const row = el('div', '', 'row');
+      const note = el('p', '');
+      // One press tells Phil. Only the file name, its fingerprint and the names
+      // of the files inside are sent, never the firmware. If the site cannot
+      // take the request, a filled-in GitHub issue opens.
+      ask.onclick = async () => {
+        ask.disabled = true;
+        try {
+          if (location.protocol === 'file:') throw new Error('offline copy');
+          const reply = await fetch('/api/firmware-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sha256: hash, fileName: file.name, name: result.name, files: names.slice(0, 80) }),
+          });
+          if (reply.status === 429) { note.textContent = 'Lots of requests today. Please try again tomorrow.'; return; }
+          if (!reply.ok) throw new Error('not sent');
+          ask.textContent = 'Request sent';
+          note.textContent = 'Phil has it. Check back on this page in a few days.';
+        } catch {
+          ask.disabled = false;
+          window.open(link, '_blank', 'noopener');
+          note.textContent = 'A GitHub page opened with the request filled in. Press Submit there.';
+        }
+      };
+      row.append(ask);
+      parts.push(row, note);
     }
     show(...parts);
   } catch (error) {

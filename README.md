@@ -81,7 +81,7 @@ MP Selector 1.1 is in testing. From 1.1, a firmware can ship its own MP Selector
 
 **Firmware that cannot open yet.** SampQOL OS, GRIDZILLA, Am MOD, RHYTHMER OS, MaiaOS, MINIMOD and KAOSAMPLE are made for Akai firmware 1.3.0.12. MP Selector 1.0.1 runs on 1.4.0.8, where they do not start. The page names them and says so.
 
-If the page does not know a firmware, it gives you a link to ask Phil for it.
+If the page does not know a firmware, press **Request this firmware** and Phil gets the request.
 
 Prefer a terminal? `node importer/cli.mjs <release.zip> <card folder>` does the same thing.
 
