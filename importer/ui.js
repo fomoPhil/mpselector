@@ -11,13 +11,17 @@ const show = (...nodes) => out.replaceChildren(...nodes);
 const assets = Object.fromEntries(Object.entries(ASSETS).map(([name, b64]) =>
   [name, Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))]));
 
-$('foot').append('Works with ', ...SUPPORTED.flatMap((s, i) => {
-  const link = el('a', s.name);
-  link.href = s.home;
-  link.target = '_blank';
-  link.rel = 'noopener';
-  return i ? [' and ', link] : [link];
-}), ', and with any firmware made for MP Selector. Download the ZIP from its own page first.');
+// The MPC in the picture shows the cover of whatever was just recognised.
+const mini = $('mini');
+const idle = mini.src;
+const screen = (id) => {
+  const next = (id && mini.getAttribute('data-' + id)) || idle;
+  if (mini.src === next) return;
+  mini.src = next;
+  mini.classList.remove('swap');
+  void mini.offsetWidth;
+  mini.classList.add('swap');
+};
 
 function handleSink(root) {
   const walk = async (path, create) => {
@@ -92,6 +96,7 @@ async function load(file) {
     const zip = await Zip.open(file);
     const names = zip.names();
     const result = await plan(zip, hash, assets);
+    screen(result.status === 'ready' ? result.id : '');
     if (result.status === 'ready') return ready(result);
     const parts = [...(result.name ? [el('h2', result.name)] : []), el('p', result.reason, 'bad'),
       ...(result.problems || []).map((problem) => el('p', problem))];
@@ -137,11 +142,12 @@ async function load(file) {
 const drop = $('drop');
 $('file').onchange = (event) => event.target.files[0] && load(event.target.files[0]);
 for (const type of ['dragenter', 'dragover']) {
-  addEventListener(type, (event) => { event.preventDefault(); drop.classList.add('over'); });
+  addEventListener(type, (event) => { event.preventDefault(); drop.classList.add('over'); document.body.classList.add('over-page'); });
 }
-addEventListener('dragleave', () => drop.classList.remove('over'));
+const calm = () => { drop.classList.remove('over'); document.body.classList.remove('over-page'); };
+addEventListener('dragleave', calm);
 addEventListener('drop', (event) => {
   event.preventDefault();
-  drop.classList.remove('over');
+  calm();
   if (event.dataTransfer.files[0]) load(event.dataTransfer.files[0]);
 });
