@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add firmware to MP Selector</title>
+<style>
+  :root { color-scheme: dark; --ink: #f2efe8; --dim: #9a968c; --line: #34322d; --go: #e8b23a; --bad: #ef7d6a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #151412; color: var(--ink);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { width: min(30rem, 100% - 2rem); padding: 2rem 0; }
+  h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 1.25rem; letter-spacing: -0.01em; }
+  #drop { display: grid; place-items: center; gap: .75rem; padding: 2.5rem 1rem; text-align: center; cursor: pointer;
+          border: 1px dashed #55524a; border-radius: 12px; transition: border-color .15s, background .15s; }
+  #drop.over, #drop:hover { border-color: var(--go); background: #1c1a17; }
+  #drop input { display: none; }
+  #out { margin-top: 1.25rem; min-height: 9rem; }
+  #out h2 { font-size: 1.125rem; font-weight: 600; margin: 0; }
+  #out p { margin: .5rem 0 0; color: var(--dim); text-wrap: pretty; }
+  #out p.warn { color: var(--go); }
+  #out p.bad { color: var(--bad); }
+  .row { display: flex; gap: .75rem; margin-top: 1rem; flex-wrap: wrap; }
+  button { font: inherit; font-weight: 600; padding: .625rem 1rem; border-radius: 8px; cursor: pointer;
+           border: 1px solid var(--line); background: transparent; color: var(--ink); transition: transform .1s; }
+  button.go { background: var(--go); border-color: var(--go); color: #1b1300; }
+  button:active { transform: scale(.97); }
+  button:disabled { opacity: .5; cursor: default; }
+  footer { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--dim); font-size: .875rem; }
+  a { color: inherit; }
+</style>
+<main>
+  <h1>Add firmware to MP Selector</h1>
+  <label id="drop">
+    <span>Drop the firmware's ZIP here, or click to choose it</span>
+    <input id="file" type="file" accept=".zip,application/zip">
+  </label>
+  <div id="out" aria-live="polite"></div>
+  <footer id="foot"></footer>
+</main>
+<script type="module">
+/*SCRIPT*/
+</script>
+</html>
