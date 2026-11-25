@@ -1,0 +1,38 @@
+#!/bin/sh
+# SD setup only: the selector and its scripts move into verified RAM.
+set -eu
+umask 077
+case "$#:${1-}" in
+    1:--developer-mode) ;;
+    *) exit 1 ;;
+esac
+D=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+RAM=/run/mpc-select
+[ "$(id -u)" = 0 ]
+grep -q ' /run tmpfs ' /proc/mounts
+command -v systemd-run >/dev/null 2>&1
+command -v systemctl >/dev/null 2>&1
+for unit in mpc-select.service mpc-select-autostart.service; do
+    state=$(systemctl show "$unit" -p ActiveState --value 2>/dev/null || true)
+    case "$state" in active|activating|deactivating|reloading) exit 0 ;; esac
+done
+[ ! -L "$RAM" ]
+mkdir -p "$RAM"
+[ -d "$RAM" ]
+chmod 700 "$RAM"
+for name in mpc-select launch.sh session.sh; do
+    [ ! -L "$RAM/$name" ]
+    cp "$D/$name" "$RAM/$name"
+done
+printf '%s  %s\n' '@SELECT_SHA256@' "$RAM/mpc-select" | sha256sum -c - >/dev/null
+printf '%s  %s\n' '@LAUNCH_SHA256@' "$RAM/launch.sh" | sha256sum -c - >/dev/null
+printf '%s  %s\n' '@SESSION_SHA256@' "$RAM/session.sh" | sha256sum -c - >/dev/null
+chmod 700 "$RAM/mpc-select" "$RAM/launch.sh" "$RAM/session.sh"
+# systemd expands ${NAME} in a service's arguments and reads $$ as a literal $.
+D_ARG=$(printf '%s\n' "$D" | sed 's/\$/$$/g')
+systemd-run --unit=mpc-select-autostart --collect --no-block \
+    --property=Type=oneshot --property=After=ac50.service \
+    --property=TimeoutStartSec=45s --property=TimeoutStopSec=5s \
+    --property="StandardOutput=append:$RAM/launcher.log" \
+    --property="StandardError=append:$RAM/launcher.log" \
+    /bin/sh "$RAM/launch.sh" "$D_ARG" "$@" > "$RAM/setup.log" 2>&1

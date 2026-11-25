@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="110" height="150" viewBox="0 0 110 150" role="img" aria-labelledby="t">
+  <title id="t">MP Selector microSD card, 11 by 15 millimeters</title>
+  <defs>
+    <!-- Ten drawing units per millimeter, front view. -->
+    <path id="outline" d="M7 0H90Q97 0 97 7V48.7Q97 50 98 51L108.9 61.9Q110 63 110 64V77.4Q110 79 108.4 79H104.7Q103 79 103 80.7V89.3Q103 91 104 92L109.1 97.1Q110 98 110 99.3V142.4Q110 150 102 150H8Q0 150 0 142V7Q0 0 7 0Z"/>
+    <clipPath id="body"><use href="#outline"/></clipPath>
+    <linearGradient id="polymer" x2=".88" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#42444a"/><stop offset=".43" stop-color="#2d3036"/><stop offset="1" stop-color="#23252a"/>
+    </linearGradient>
+  </defs>
+  <use href="#outline" fill="url(#polymer)"/>
+  <g clip-path="url(#body)">
+    <use href="#outline" fill="none" stroke="#797d86" stroke-width="1.3"/>
+    <path fill="#fc895f" d="M11 16l4-1.5v11L11 27zm5-2 4-1.5v15L16 29zm5-1.5 4 1.5v13l-4 1.5z"/>
+    <g font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-weight="700" fill="#e9ebe8">
+      <text x="11" y="66" font-size="23" letter-spacing="-1">MP</text>
+      <text x="10.5" y="85" font-size="22" letter-spacing="-1.1">Selector</text>
+      <text x="11" y="112" font-size="8.2" letter-spacing=".4" fill="#c1c3c4">microSD</text>
+    </g>
+    <path d="M0 136.3Q55 125.6 110 136.3V150H0Z" fill="#26282d"/>
+    <path d="M-.5 136.2Q55 125.6 110.5 136.2" stroke="#14171b" stroke-width="1.35" fill="none"/>
+    <path d="M-.5 137.4Q55 126.8 110.5 137.4" stroke="#50535a" stroke-width=".95" fill="none"/>
+    <path d="M1.4 142Q1.4 148.8 8 148.8H102Q108.7 148.8 108.7 142.4" stroke="#1b1d21" stroke-width="1.6" fill="none"/>
+  </g>
+</svg>

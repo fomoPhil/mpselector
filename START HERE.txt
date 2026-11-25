@@ -1,0 +1,45 @@
+MP SELECTOR 1.0.1
+For Akai MPC Sample running firmware 1.4.0.8
+
+Pick what runs by its cover. Turn the dial on your MPC and press it.
+The download has one cover, Akai. It does not install any other firmware.
+
+1. Prepare your microSD
+   Use a spare exFAT card. It can have any name. Back up any files you
+   want to keep. If the card already has an autorun.sh, autorun folder or
+   firmware folder, use another card for this first install. Replacing an
+   existing launcher can disable it.
+
+   Unzip MP Selector on your computer. Open "SD Card Files" and copy its three
+   items to the top level of the card: autorun.sh, autorun and firmware.
+   When you open the card, you should see those three items side by side.
+
+2. Open the selector
+   Eject the card from your computer. On the MPC, save your current project.
+   Hold Shift and press Pad 8 to open MIDI Config. Under Dev Enhancements
+   (Beta), enable Developer Mode. Insert the card and choose Yes when Akai
+   asks to run its autorun script. Turn the dial to browse and press it to open.
+
+What to press
+   B1 switches between Cover Flow and Library. B2 shows Favorites or all
+   entries. B3 stars the current entry. Open an entry or confirm shutdown to
+   save a change to your favorites.
+
+   In Cover Flow, a Power tap opens Shutdown. B1 cancels. B3 confirms.
+
+Your own firmware
+   Each entry is a folder inside "firmware" on the card. MP Selector does not
+   include or install any. The folder format is described at
+   https://github.com/fomoPhil/mp-selector#add-your-own-firmware
+
+If you see the stock sampler
+   Check the exact Akai version and the Developer Mode switch. From stock,
+   with your work saved and card activity finished, reinsert the prepared card.
+   If no prompt appears, check that autorun.sh is at the top of the card.
+
+To go back to stock
+   Choose Akai in the selector and decline the card script if asked again.
+   You can also shut down, remove the selector card and turn the MPC back on.
+   MP Selector runs from microSD. Nothing is installed on the MPC.
+
+MP Selector is an independent project by Phil Woolley.

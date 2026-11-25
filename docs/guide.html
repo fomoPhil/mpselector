@@ -1,0 +1,67 @@
+<!doctype html><meta charset="utf-8"><title>MP Selector quick guide</title>
+<!-- Source for guide.png. Open in a browser at 1000 px wide and capture the .g element at 2x. -->
+<style>
+*{box-sizing:border-box}body{margin:0}
+.g{width:1000px;padding:40px 40px 30px;color:#fff;font:400 17px/1.45 "Helvetica Neue",Arial,sans-serif;
+background-color:#233fa6;background-image:radial-gradient(circle,#99adff42 .8px,transparent 1px),linear-gradient(117deg,#3553bb,#203a99 75%);background-size:13px 13px,100% 100%}
+header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px}
+h1{margin:0;font-size:64px;line-height:.9;letter-spacing:-.05em;font-weight:750;display:flex;align-items:center;gap:16px}
+.mark{display:inline-flex;align-items:center;height:46px}.mark i{display:block;width:11px;height:36px;background:#ff8255;transform:skewY(-18deg);margin-right:4px}.mark i:nth-child(2){height:44px}.mark i:nth-child(3){transform:skewY(18deg);margin:0}
+header p{margin:0;text-align:right;font:600 14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#dbe3ff}
+.panel{background:#f9f9f4;color:#1a1b1d;border-radius:12px;padding:26px 30px 28px;margin-top:18px}
+h2{margin:0 0 16px;font-size:34px;line-height:1;letter-spacing:-.04em;font-weight:680;display:flex;align-items:center;gap:12px}
+h2 b{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#233fa6;color:#fff;font:700 17px ui-monospace,Menlo,monospace;letter-spacing:0}
+.two{display:grid;grid-template-columns:1.15fr 1fr;gap:34px}
+.two p{margin:0}
+ul{margin:0;padding:0;list-style:none}li{padding:7px 0;border-top:1px solid #dcdbd2}li:first-child{border-top:0;padding-top:0}
+.link{display:block;margin-top:8px;font:600 16px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#233fa6}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.pic{position:relative;height:150px;border-radius:8px;overflow:hidden;background:#12141a;margin-bottom:14px}
+h3{margin:0 0 5px;font-size:19px;letter-spacing:-.02em}
+.three p{margin:0;font-size:15.5px;line-height:1.45;color:#3d4250}
+.three b,.use b{color:#1a1b1d}
+.files{display:flex;align-items:center;justify-content:center;gap:16px;height:100%;background:#203785;color:#fff;font:600 14px/1.9 ui-monospace,Menlo,monospace}
+.files img{width:54px;height:auto}.files span{font-size:22px;color:#ffb08f}
+.crop img{position:absolute;width:379.6px;left:-9.7px;top:-193px}
+.ring{position:absolute;border:3px solid #ff8255;border-radius:50%;box-shadow:0 0 0 3px #ff825540}
+.tag{position:absolute;background:#ff8255;color:#1a1b1d;font:700 11px/1 ui-monospace,Menlo,monospace;padding:4px 6px;border-radius:3px}
+.screen{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;display:block}
+.use{display:grid;grid-template-columns:330px 1fr;gap:34px;align-items:start}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px}
+.chips span{background:#1a1b1d;color:#fff;font:700 11px/1 ui-monospace,Menlo,monospace;padding:7px 0;text-align:center;border-radius:4px}
+.use .screen{border-radius:6px;height:auto;aspect-ratio:4/3;background:#0b0b0d}
+.dialrow{display:flex;align-items:center;gap:14px;margin-top:14px;font-size:15.5px;color:#3d4250}
+.knob{flex:none;width:58px;height:58px;border-radius:50%;border:1px solid #bdbcb4;background:repeating-conic-gradient(#d3d2c8 0 2deg,#f1f1e8 3deg 6deg);box-shadow:0 3px 0 #b5b3a9;position:relative}
+.knob:after{content:"";position:absolute;inset:8%;border-radius:50%;background:linear-gradient(145deg,#fbfbf5,#e3e3d8)}
+.knob:before{content:"";position:absolute;z-index:1;left:50%;top:12%;width:4px;height:20%;margin-left:-2px;border-radius:2px;background:#ff754b}
+table{border-collapse:collapse;width:100%;font-size:16px}td{padding:8px 0;border-top:1px solid #dcdbd2;vertical-align:top}tr:first-child td{border-top:0;padding-top:0}
+td:first-child{width:150px;font-weight:650;white-space:nowrap}
+td:last-child{color:#3d4250}
+footer{margin-top:18px;display:flex;justify-content:space-between;font:600 13px ui-monospace,Menlo,monospace;color:#dbe3ff}
+</style>
+<div class="g" id="g">
+<header><h1><span class="mark"><i></i><i></i><i></i></span>MP Selector</h1><p>One card, many firmwares<br>Akai MPC Sample · firmware 1.4.0.8</p></header>
+
+<section class="panel"><h2><b>1</b>Download</h2><div class="two">
+<div><p>Get <b>MP-Selector-1.0.1.zip</b>. It is free.</p><span class="link">github.com/fomoPhil/mp-selector</span><span class="link">philwoolley.com/mpselector</span></div>
+<ul><li>MPC Sample on firmware <b>1.4.0.8</b></li><li>A spare microSD card, <b>exFAT</b>, any name</li><li>It starts with one cover, <b>Akai</b></li></ul>
+</div></section>
+
+<section class="panel"><h2><b>2</b>Set up</h2><div class="three">
+<div><div class="pic"><div class="files"><div>autorun.sh<br>autorun<br>firmware</div><span>→</span><img src="art/microsd.svg"></div></div><h3>Copy the files</h3><p>Unzip the download. Open <b>SD Card Files</b>. Copy the three things inside onto your card.</p></div>
+<div><div class="pic crop"><img src="art/mpc-sample.webp"><i class="ring" style="left:4px;top:1px;width:44px;height:44px"></i><i class="tag" style="left:52px;top:14px">Shift</i><i class="ring" style="left:222px;top:100px;width:48px;height:48px"></i><i class="tag" style="left:172px;top:117px">Pad 8</i></div><h3>Turn on Developer Mode</h3><p>Save your beat. Hold <b>Shift</b> and press <b>Pad 8</b>. Find <b>Dev Enhancements (Beta)</b>. Turn on <b>Developer Mode</b>.</p></div>
+<div><div class="pic"><img class="screen" src="screen-stock-prompt.png"></div><h3>Start Cover Flow</h3><p>Put the card in your MPC. It asks to run the script. Press the left button, <b>Yes</b>.</p></div>
+</div></section>
+
+<section class="panel"><h2><b>3</b>Use it</h2><div class="use">
+<div><div class="chips"><span>Left button</span><span>Middle button</span><span>Right button</span></div><img class="screen" src="art/screen-akai.png"><div class="dialrow"><i class="knob"></i><div><b>Turn the dial</b> to browse.<br><b>Press the dial</b> to open.</div></div></div>
+<table>
+<tr><td>Left button</td><td><b>Library</b>, a list. Press again for <b>Covers</b>.</td></tr>
+<tr><td>Middle button</td><td><b>Favorites</b>. Press again for <b>All mods</b>.</td></tr>
+<tr><td>Right button</td><td><b>Star</b> the cover. Press again to <b>Unstar</b>.</td></tr>
+<tr><td>Tap Power</td><td>Shut down. Right button is <b>Yes</b>. Left button is <b>No</b>.</td></tr>
+<tr><td>Back to Akai</td><td>Choose <b>Akai</b> and press the dial. If it asks to run the script again, press the right button, <b>No</b>.</td></tr>
+</table>
+</div></section>
+<footer><span>MP Selector 1.0.1</span><span>Not affiliated with Akai Professional</span></footer>
+</div>
