@@ -110,7 +110,7 @@ async function load(file) {
         ask.disabled = true;
         try {
           if (location.protocol === 'file:') throw new Error('offline copy');
-          const reply = await fetch('/api/firmware-request', {
+          const reply = await fetch('/api/firmware-request/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sha256: hash, fileName: file.name, name: result.name, files: names.slice(0, 80) }),
