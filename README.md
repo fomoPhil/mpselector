@@ -142,7 +142,7 @@ This makes a new `sd-files` folder with the same files as `SD Card Files` in the
 | --- | --- |
 | `selector/` | Cover Flow, the launcher scripts and the Akai cover |
 | `doom/` | Screen and control code shared with [MP DOOM](https://github.com/fomoPhil/mp-doom) |
-| `importer/` | The source of the Add Firmware page, `Add Firmware.html`. Rebuild it with `node importer/build.mjs`. `node importer/watch.mjs` checks each firmware's newest release against it |
+| `importer/` | The source of the Add Firmware page, `Add Firmware.html`, with its pictures in `importer/art`. Rebuild it with `node importer/build.mjs`. `node importer/watch.mjs` checks each firmware's newest release against it |
 | `docs/` | README images and the source of the quick guide |
 
 The source for the compiler runtime and C library is in the `Source` archive inside the release ZIP.

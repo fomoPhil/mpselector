@@ -15,7 +15,15 @@ export async function build() {
   const script = [await source('engine.mjs'), await source('recipes.mjs'),
     `const ASSETS = ${JSON.stringify(assets)};`, await source('ui.js')].join('\n');
   if (script.includes('</script')) throw new Error('Script would end the page early.');
-  return (await readFile(join(HERE, 'page.html'), 'utf8')).replace('/*SCRIPT*/', () => script);
+  // Pictures are inlined, so the page still works as one file with no internet.
+  const types = { webp: 'image/webp', png: 'image/png', svg: 'image/svg+xml' };
+  let page = await readFile(join(HERE, 'page.html'), 'utf8');
+  for (const token of new Set(page.match(/\{\{art\/[^}]+\}\}/g))) {
+    const name = token.slice(6, -2);
+    const data = (await readFile(join(HERE, 'art', name))).toString('base64');
+    page = page.replaceAll(token, `data:${types[name.split('.').pop()]};base64,${data}`);
+  }
+  return page.replace('/*SCRIPT*/', () => script);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
