@@ -163,6 +163,7 @@ const KNOWN = [
   ['Console/install.sh', 'Console', 'It installs itself onto the MPC, so it cannot run from a menu.'],
   ['FMSTEP/bin/', 'FM-STEP', LATER],
   ['BeatTrain/', 'Beat-Train', COPY],
+  ['autorun/dfos', 'DFOS', OLD],
 ];
 
 function known(zip) {
