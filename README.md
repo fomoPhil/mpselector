@@ -10,7 +10,7 @@ The whole thing on one page: [quick guide](docs/guide.png).
 
 ## Download
 
-**[Download MP-Selector-1.1.0.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.1.0.zip)**
+**[Download MP-Selector-1.2.0.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.2.0.zip)**
 
 Tested on MPC Sample firmware **1.4.0.8**. The checksum is on the [release page](https://github.com/fomoPhil/mpselector/releases/latest).
 
@@ -61,21 +61,49 @@ You can also shut down, take the card out and turn the MPC back on.
 
 ## Add firmware
 
-MP Selector is the menu. It does not come with other firmware. You download the firmware from its maker, then add it to your card with the [Add Firmware page](https://philwoolley.com/mpselector/add/).
+MP Selector is the menu. It does not come with other firmware. You download a firmware from its maker and copy it onto your card. Needs MP Selector 1.2 or later.
 
-1. Download the firmware's ZIP from its own page. Leave it zipped.
-2. Open [philwoolley.com/mpselector/add](https://philwoolley.com/mpselector/add/), or `Add Firmware.html` from the download. It works in your browser. The ZIP stays on your computer and nothing is uploaded.
-3. Drop the ZIP on the page.
-4. Press **Add to card** and pick your card. In Safari or Firefox, press **Download as ZIP** and follow the numbered steps the page shows. The ZIP's folders are named after where they go, so there is nothing to merge.
+1. Download the firmware from its own page and unzip it.
+2. On your card, open `firmware` and make a new folder. Its name is what the MPC shows.
+3. Copy everything from the download into that folder, as it is.
 
-| Firmware | Tested version | Notes |
-| --- | --- | --- |
-| [Melodee](https://github.com/keremimo/melodee-sample/releases) | 0.8.2 | |
-| [MPC Simple](https://sourceforge.net/projects/mpcsimple/files/) | 1.0 Beta 10 | Its stem model goes in `MPC-Simple/Models` on the card. |
+The firmware runs the way it would alone on a card. Folders it keeps at the top of a card, such as `MPC-Simple`, can stay inside its own folder.
 
-A newer version usually works. The page tells you when Phil has not tested it.
+For a cover, add a square picture named `cover.png` or `cover.jpg` to the same folder.
 
-Dropping a firmware's own folder into `firmware` does not work. Each one needs a small start script written for MP Selector, and the page adds it for you.
+### Opened on Akai 1.4.0.8
+
+Each of these was copied in unchanged and opened from Cover Flow on an MPC Sample running Akai 1.4.0.8.
+
+| Firmware | Version |
+| --- | --- |
+| [Melodee](https://github.com/keremimo/melodee-sample/releases) | 0.8.3 |
+| [MPC Simple](https://mpcsimple.com) | 1.0 Beta 11 |
+| [Rhythmer OS](https://jazzyrhythmer.github.io/mpc-sample) | 0.3.0 |
+| [hdslaveOS](https://github.com/hdslave/hdslaveOS) | 0.8.2-hdslave.3 |
+| [EPICYCLE](https://github.com/tubedigga/EPICYCLE) | 0.3.6 |
+| [MPC 600 S](https://github.com/LA-2500/MPC-600-S) | 2.0H |
+| [MPCTRACKER](https://github.com/jeffwebb-to/mpc-sample-tracker) | 0.1.0 |
+| [MPC Furnace](https://github.com/garrettjwilke/mpc-furnace) | 1.0.0 |
+| [Beat-Train](https://github.com/drose030/beat-train-mpc-sample) | 1.6 |
+| [MPC DOOM](https://github.com/jeffwebb-to/mpc-sample-doom) | 1.0.0 |
+| [MPC Cave Story](https://github.com/garrettjwilke/mpc-cavestory) | 1.0.0 |
+| [MPC TIC-80](https://github.com/garrettjwilke/mpc-tic80) | 1.0.0 |
+| [MPC Gen1Recomp](https://github.com/garrettjwilke/mpc-gen1recomp) | 1.0.1 |
+
+### Not on Akai 1.4 yet
+
+- Tape Workshop and the sample-base demos check the Akai version themselves and stop on 1.4.0.8. They need an update from their makers.
+- SampQOL OS, Am MOD, MaiaOS, KAOSAMPLE, MINIMOD, ArpeggiGator and similar mods change the Akai 1.3 app itself. On 1.4 their cover says "Requires Akai firmware 1.3.0.12" and nothing runs.
+
+### If one does not open
+
+After a minute with nothing on screen, Cover Flow comes back and says it did not start. Two things to try:
+
+- Put an empty file named `sampleboot.inplace` in the firmware's folder, next to its `autorun.sh`. This is the same file SampleBoot uses.
+- Check the firmware's own page for the Akai version it needs.
+
+The [Add Firmware page](https://philwoolley.com/mpselector/add/) still sets up Melodee and MPC Simple so that quitting them returns to Cover Flow.
 
 A firmware can also ship its own MP Selector folder. The page adds those too, whoever made them, and they open on MP Selector 1.1 or later. Developers: see [Make your firmware work with MP Selector](docs/DEVELOPERS.md).
 

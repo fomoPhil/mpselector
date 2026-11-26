@@ -5,6 +5,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include "mpc_display.h"
 #include "mpc_surface.h"
+#include "selector_cover.h"
 #include "selector_draw.h"
 #include "selector_logic.h"
 #include <errno.h>
@@ -46,23 +47,44 @@ static FILE *open_regular_file(const char *path)
     return NULL;
 }
 
+#define PICTURE_BYTES (16u << 20)
+
+/* A cover is a ready cover.rgb565 or a picture, in the entry's folder or the
+ * autorun folder inside it. */
+static bool load_cover_file(const char *path, bool picture, struct selector_item *item)
+{
+    FILE *file = open_regular_file(path);
+    if (!file) return false;
+    size_t limit = picture ? PICTURE_BYTES : SELECTOR_ART_BYTES;
+    unsigned char *data = malloc(limit), *cover = picture ? malloc(SELECTOR_ART_BYTES) : data;
+    size_t size = data ? fread(data, 1, limit, file) : 0;
+    bool ok = data && cover && fgetc(file) == EOF && !ferror(file) &&
+        (picture ? selector_cover_from_image(data, size, cover) == 0 : size == SELECTOR_ART_BYTES);
+    fclose(file);
+    if (picture) free(data);
+    if (ok) item->cover = cover;
+    else free(cover);
+    return ok;
+}
+
 static void load_cover(const char *card, struct selector_item *item)
 {
     if (!card || strchr(item->id, '/') || !strcmp(item->id, ".") || !strcmp(item->id, "..")) return;
     char path[PATH_MAX];
-    int length = !strcmp(item->id, "akai")
-        ? snprintf(path, sizeof path, "%s/autorun/akai.rgb565", card)
-        : snprintf(path, sizeof path, "%s/firmware/%s/cover.rgb565", card, item->id);
-    if (length < 0 || (size_t)length >= sizeof path) return;
-    FILE *file = open_regular_file(path);
-    if (!file) return;
-    unsigned char *cover = malloc(SELECTOR_ART_BYTES);
-    if (cover && fread(cover, 1, SELECTOR_ART_BYTES, file) == SELECTOR_ART_BYTES &&
-        fgetc(file) == EOF && !ferror(file))
-        item->cover = cover;
-    else
-        free(cover);
-    fclose(file);
+    if (!strcmp(item->id, "akai")) {
+        int length = snprintf(path, sizeof path, "%s/autorun/akai.rgb565", card);
+        if (length >= 0 && (size_t)length < sizeof path) load_cover_file(path, false, item);
+        return;
+    }
+    const char *names[] = {"cover.rgb565", "cover.png", "cover.jpg", "cover.jpeg", "cover.bmp",
+                           "sampleboot.png", "sampleboot.jpg", "sampleboot.bmp"};
+    const char *folders[] = {"", "/autorun"};
+    for (size_t f = 0; f < sizeof folders / sizeof folders[0]; ++f)
+        for (size_t n = 0; n < sizeof names / sizeof names[0]; ++n) {
+            int length = snprintf(path, sizeof path, "%s/firmware/%s%s/%s", card, item->id, folders[f], names[n]);
+            if (length < 0 || (size_t)length >= sizeof path) return;
+            if (load_cover_file(path, n > 0, item)) return;
+        }
 }
 
 static const char *caption(const char *id)
