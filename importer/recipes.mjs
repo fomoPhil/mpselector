@@ -26,7 +26,11 @@ const READY = [
     async match(zip) {
       const root = rootOf(zip, 'autorun/melodee/sample-base');
       if (root == null || !zip.has(root + 'autorun/melodee/app')) return null;
-      return decode(await zip.read(root + 'autorun/melodee/app')).trim() === 'melodee' ? root : null;
+      if (decode(await zip.read(root + 'autorun/melodee/app')).trim() !== 'melodee') return null;
+      // Forks such as hdslaveOS keep Melodee's layout and add a suffix to its version.
+      const version = root + 'autorun/melodee/VERSION';
+      if (zip.has(version) && !/^v?\d+(\.\d+)*$/.test(decode(await zip.read(version)).trim().split(/\s+/)[0])) return null;
+      return root;
     },
     async build(zip, root, assets) {
       const from = root + 'autorun/melodee/';
