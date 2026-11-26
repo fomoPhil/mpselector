@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import { build } from './build.mjs';
 import { folderSink, loadAssets } from './cli.mjs';
 import { Zip, sha256, storeZip, sums, utf8 } from './engine.mjs';
-import { apply, plan } from './recipes.mjs';
+import { apply, handoff, plan } from './recipes.mjs';
 
 const assets = await loadAssets();
 const zipOf = (files) => Zip.open(storeZip(Object.entries(files).map(([k, v]) => [k, utf8(v)])));
@@ -124,6 +124,23 @@ test('a shipped folder with mistakes is refused, and each mistake is named', asy
     /does not match run\.sh/, /lists gone/]) {
     assert.ok(result.problems.some((problem) => part.test(problem)), String(part));
   }
+});
+
+test('the ZIP for other browsers needs no merging: one folder for firmware, card data apart', async () => {
+  const simple = await plan(await zipOf({
+    'SD Card/autorun/mpcsimple': 'ELF',
+    'SD Card/MPC-Simple/Models/spleeter-4stems.mpcsnn': 'model',
+  }), 'x', assets);
+  const made = handoff(simple);
+  const names = made.files.map(([path]) => path);
+  assert.ok(names.includes('1 - Drag into the firmware folder/mpc-simple/run.sh'));
+  assert.ok(names.includes('2 - Drag to the top of the card/MPC-Simple/Models/spleeter-4stems.mpcsnn'));
+  assert.ok(names.includes('READ ME.txt') && !names.some((n) => n.startsWith('firmware/')));
+  assert.equal(made.steps.length, 4);
+  assert.match(made.steps[2], /already has one, skip/);
+  const melodeeSteps = handoff(await plan(await melodee(), 'x', assets));
+  assert.equal(melodeeSteps.steps.length, 3);
+  assert.ok(melodeeSteps.files.some(([path]) => path === '1 - Drag into the firmware folder/melodee/.release/stems/weights.f16'));
 });
 
 test('checksum list covers top-level files only, sorted by name', () => {

@@ -66,7 +66,7 @@ MP Selector is the menu. It does not come with other firmware. You download the 
 1. Download the firmware's ZIP from its own page. Leave it zipped.
 2. Open [philwoolley.com/mpselector/add](https://philwoolley.com/mpselector/add/), or `Add Firmware.html` from the download. It works in your browser. The ZIP stays on your computer and nothing is uploaded.
 3. Drop the ZIP on the page.
-4. Press **Add to card** and pick your card. In Safari or Firefox, press **Download as ZIP**, unzip it and copy what is inside to the top of your card.
+4. Press **Add to card** and pick your card. In Safari or Firefox, press **Download as ZIP** and follow the numbered steps the page shows. The ZIP's folders are named after where they go, so there is nothing to merge.
 
 | Firmware | Tested version | Notes |
 | --- | --- | --- |

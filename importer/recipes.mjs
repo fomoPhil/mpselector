@@ -206,6 +206,26 @@ export async function plan(zip, archiveSha, assets) {
   };
 }
 
+// For browsers that cannot write to the card. The ZIP's folders are named
+// after what to do with them, so nothing has to be merged by hand:
+// one folder goes into "firmware", and card data (if any) goes to the top.
+const INTO = '1 - Drag into the firmware folder';
+const TOP = '2 - Drag to the top of the card';
+export function handoff(result) {
+  const inside = `firmware/${result.id}/`;
+  const extra = [...new Set(result.files.filter(([path]) => !path.startsWith(inside)).map(([path]) => path.split('/')[0]))];
+  const steps = [
+    'Unzip the file you just downloaded.',
+    `Open the folder "${INTO}". Drag the "${result.id}" folder from it into the "firmware" folder on your card. If it asks, choose Replace.`,
+    ...extra.map((folder) => `If your card has no "${folder}" folder at the top, open "${TOP}" and drag "${folder}" to the top of the card. If the card already has one, skip this.`),
+    'Eject the card and put it in your MPC.',
+  ];
+  const files = result.files.map(([path, bytes]) =>
+    [path.startsWith(inside) ? `${INTO}/${path.slice('firmware/'.length)}` : `${TOP}/${path}`, bytes]);
+  files.push(['READ ME.txt', utf8(`${result.name} for MP Selector\n\n${steps.map((step, i) => `${i + 1}. ${step}`).join('\n')}\n`)]);
+  return { files, steps };
+}
+
 export const SUPPORTED = READY.map((r) => ({ name: r.name, home: r.home }));
 
 // Write a plan through a sink: { has(path), remove(path), write(path, bytes) }.
