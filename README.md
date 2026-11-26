@@ -107,9 +107,7 @@ The [Add Firmware page](https://philwoolley.com/mpselector/add/) still sets up M
 
 A firmware can also ship its own MP Selector folder. The page adds those too, whoever made them, and they open on MP Selector 1.1 or later. Developers: see [Make your firmware work with MP Selector](docs/DEVELOPERS.md).
 
-**Firmware that cannot open yet.** SampQOL OS, GRIDZILLA, Am MOD, RHYTHMER OS, MaiaOS, MINIMOD and KAOSAMPLE are made for Akai firmware 1.3.0.12. MP Selector runs on 1.4.0.8, where they do not start. The page names them and says so.
-
-If the page does not know a firmware, press **Request this firmware** and Phil gets the request.
+If the page does not know a firmware, it tells you to copy it in as above.
 
 Prefer a terminal? `node importer/cli.mjs <release.zip> <card folder>` does the same thing.
 
@@ -123,7 +121,8 @@ Each cover is a folder inside `firmware` on the card. The folder's name is its I
 | --- | --- | --- |
 | `name` | Yes | The title shown on screen. First line only. |
 | `run.sh` | Yes | The script that starts the firmware. |
-| `cover.rgb565` | No | The cover art. 96 × 96 pixels, RGB565, little-endian. Exactly 18,432 bytes. |
+| `cover.png` or `cover.jpg` | No | The cover art. A square picture. |
+| `cover.rgb565` | No | The cover art as raw pixels. 96 × 96, RGB565, little-endian. Exactly 18,432 bytes. |
 | `akai` | For a new folder | The Akai firmware versions it runs on, one per line. For example `1.4.0.8`. |
 | `caption` | No | One short line under the title. Plain ASCII. |
 | `unavailable` | No | One line. The cover shows this message and does not open. |

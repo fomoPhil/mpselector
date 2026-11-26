@@ -2,6 +2,8 @@
 
 This page is for people who build firmware, mods or apps for the Akai MPC Sample. It needs MP Selector 1.1 or later.
 
+From MP Selector 1.2 your release may already open with no changes. A user makes a folder in `firmware` and copies your download into it, and it runs as it would alone on a card. See [Add firmware](../README.md#add-firmware) for what was tried. The folder below is still the better fit: quitting returns to Cover Flow, and you choose the title, cover and Akai versions.
+
 Add one folder to your release ZIP and your project opens from Cover Flow. Your users unzip your release onto their MP Selector card, or drop the ZIP on the [Add Firmware page](https://philwoolley.com/mpselector/add/). They never touch a script.
 
 ## The folder
@@ -23,7 +25,8 @@ firmware/
 | `name` | Yes | The title shown on screen. First line only. |
 | `run.sh` | Yes | Starts your firmware. Unix line endings. |
 | `akai` | Yes | The Akai firmware versions you have tested on, one per line. For example `1.4.0.8`. |
-| `cover.rgb565` | No | Cover art. 96 × 96 pixels, RGB565, little-endian. Exactly 18,432 bytes. |
+| `cover.png` or `cover.jpg` | No | Cover art. A square picture. Needs MP Selector 1.2. |
+| `cover.rgb565` | No | Cover art for MP Selector 1.1 too. 96 × 96 pixels, RGB565, little-endian. Exactly 18,432 bytes. It wins over a picture. |
 | `caption` | No | One short line under the title. Plain ASCII. Good for "how do I get back". |
 | `SHA256SUMS` | No | `sha256sum` output for the files in the folder. If it is there, every listed file is checked before `run.sh` starts. |
 

@@ -81,7 +81,7 @@ test('firmware that cannot open is named, with the reason', async () => {
   assert.deepEqual([qol.status, qol.name], ['blocked', 'SampQOL OS']);
   assert.match(qol.reason, /1\.3\.0\.12/);
   const other = await plan(await zipOf({ 'autorun/autorun.json': '{}' }), 'x', assets);
-  assert.match(other.reason, /not one MP Selector knows/);
+  assert.match(other.reason, /does not know this firmware/);
   assert.equal(other.request, true);
   assert.ok(!qol.request);
   const junk = await plan(await zipOf({ 'holiday.jpg': 'x' }), 'x', assets);

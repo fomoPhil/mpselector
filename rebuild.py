@@ -18,7 +18,7 @@ def rebuild(source, destination, zig):
     binary = folder / 'mpc-select'
     subprocess.run([str(zig), 'cc', '-target', 'aarch64-linux-musl', '-static', '-O2', '-s',
                     '-Wall', '-Wextra', '-Werror', '-Iselector', '-Idoom',
-                    'selector/mpc_select.c', 'selector/selector_draw.c',
+                    'selector/mpc_select.c', 'selector/selector_draw.c', 'selector/selector_cover.c',
                     'doom/mpc_display.c', 'doom/mpc_surface.c', '-lm', '-o', str(binary.resolve())],
                    cwd=source, check=True)
     launcher = (source / 'selector/autorun.sh.in').read_text()
