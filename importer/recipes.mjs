@@ -141,27 +141,28 @@ async function shipped(zip) {
 
 const OLD = 'It is made for Akai firmware 1.3.0.12. MP Selector runs on 1.4.0.8, so it cannot open here yet.';
 const LATER = 'It has not been set up for MP Selector yet.';
+const COPY = 'It runs as it is on MP Selector 1.2 or later. Unzip it, make a new folder inside the firmware folder on your card, and copy everything into it.';
 
 // Firmware this tool can name but not add. [marker file, name, reason].
 const KNOWN = [
   ['autorun/mpcqol.so', 'SampQOL OS', OLD],
   ['WaveGrid/CURRENT', 'GRIDZILLA', OLD],
   ['autorun/mod-launcher.sh', 'Am MOD', OLD],
-  ['autorun/rhythmer/sample-base', 'RHYTHMER OS', OLD],
+  ['autorun/rhythmer/sample-base', 'RHYTHMER OS', COPY],
   ['autorun/app.delta.gz', 'MaiaOS', OLD],
   ['autorun/minimod.so', 'MINIMOD', OLD],
   ['autorun/kaoslayer.so', 'KAOSAMPLE', OLD],
   ['autorun/stemloop-mod.so', 'MPC Stemloop', OLD],
   ['autorun/libmpc_pcmfix.so', 'USB DeClick', OLD],
   ['autorun/sampleboot/', 'SampleBoot', 'It is a boot menu of its own. Use it or MP Selector on a card, not both.'],
-  ['autorun/mpc-os', 'MPC 600 S', LATER],
+  ['autorun/mpc-os', 'MPC 600 S', COPY],
   ['autorun/mpc-doom', 'MP DOOM', LATER],
-  ['autorun/tracker.sh', 'MPCTRACKER', LATER],
-  ['autorun/doom.sh', 'MPC DOOM', LATER],
-  ['autorun/epicycle/', 'EPICYCLE', LATER],
+  ['autorun/tracker.sh', 'MPCTRACKER', COPY],
+  ['autorun/doom.sh', 'MPC DOOM', COPY],
+  ['autorun/epicycle/', 'EPICYCLE', COPY],
   ['Console/install.sh', 'Console', 'It installs itself onto the MPC, so it cannot run from a menu.'],
   ['FMSTEP/bin/', 'FM-STEP', LATER],
-  ['BeatTrain/', 'Beat-Train', LATER],
+  ['BeatTrain/', 'Beat-Train', COPY],
 ];
 
 function known(zip) {
@@ -202,7 +203,7 @@ export async function plan(zip, archiveSha, assets) {
     status: 'blocked', name: '', request: card != null,
     reason: card == null
       ? 'This ZIP does not look like MPC Sample firmware. Use the ZIP you downloaded from the firmware\'s own page.'
-      : 'This firmware is not one MP Selector knows yet, and it does not ship an MP Selector folder, so it cannot open from the menu.',
+      : 'This page does not know this firmware. Many run as they are on MP Selector 1.2 or later: unzip it, make a new folder inside the firmware folder on your card, and copy everything into it.',
   };
 }
 
