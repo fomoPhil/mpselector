@@ -73,20 +73,23 @@ function ready(result) {
       busy(false);
     } catch (error) { fail(error); }
   };
+  const steps = el('ol', '');
   zip.onclick = () => {
+    const made = handoff(result);
     const link = el('a', '');
-    link.href = URL.createObjectURL(storeZip(result.files));
+    link.href = URL.createObjectURL(storeZip(made.files));
     link.download = `${result.id}-for-mp-selector.zip`;
     link.click();
     status.className = '';
-    status.textContent = 'Unzip it, then copy what is inside to the top of your card. Merge the firmware folder.';
+    status.textContent = '';
+    steps.replaceChildren(...made.steps.map((step) => el('li', step)));
   };
   if ('showDirectoryPicker' in window) row.append(add);
   else zip.className = 'go';
   row.append(zip);
   const parts = [el('h2', `${result.name} ${result.version}`.trim())];
   if (result.warn) parts.push(el('p', result.warn, 'warn'));
-  show(...parts, row, status);
+  show(...parts, row, status, steps);
 }
 
 async function load(file) {
