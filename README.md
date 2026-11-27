@@ -10,7 +10,7 @@ The whole thing on one page: [quick guide](docs/guide.png).
 
 ## Download
 
-**[Download MP-Selector-1.2.1.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.2.1.zip)**
+**[Download MP-Selector-1.2.2.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.2.2.zip)**
 
 Tested on MPC Sample firmware **1.4.0.8**. The checksum is on the [release page](https://github.com/fomoPhil/mpselector/releases/latest).
 
