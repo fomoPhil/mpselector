@@ -1,10 +1,8 @@
-# Make your firmware work with MP Selector
+# The older firmware folder
 
-This page is for people who build firmware, mods or apps for the Akai MPC Sample. It needs MP Selector 1.1 or later.
+**New projects: follow the [MP Selector Standard](STANDARD.md).** It is one small file in the download you already ship, and it needs MP Selector 1.3.
 
-From MP Selector 1.2 your release may already open with no changes. A user makes a folder in `firmware` and copies your download into it, and it runs as it would alone on a card. See [Add firmware](../README.md#add-firmware) for what was tried. The folder below is still the better fit: quitting returns to Cover Flow, and you choose the title, cover and Akai versions.
-
-Add one folder to your release ZIP and your project opens from Cover Flow. Your users unzip your release onto their MP Selector card, or drop the ZIP on the [Add Firmware page](https://philwoolley.com/mpselector/add/). They never touch a script.
+This page describes the older way, a `firmware/<id>/` folder added to your release. It still works, from MP Selector 1.1 on.
 
 ## The folder
 

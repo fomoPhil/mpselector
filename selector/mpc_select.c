@@ -118,6 +118,30 @@ static void load_card_caption(const char *card, struct selector_item *item)
             return;
         }
     }
+    /* A firmware that follows the MP Selector Standard says how to quit it. */
+    const char *folders[] = {"/autorun", "/SD/autorun", ""};
+    for (size_t i = 0; i < sizeof folders / sizeof folders[0]; ++i) {
+        char path[PATH_MAX], line[128];
+        int length = snprintf(path, sizeof path, "%s/firmware/%s%s/mpselector.txt", card, item->id, folders[i]);
+        if (length < 0 || (size_t)length >= sizeof path) return;
+        FILE *file = open_regular_file(path);
+        if (!file) continue;
+        while (fgets(line, sizeof line, file)) {
+            if (strncmp(line, "quit:", 5)) continue;
+            const char *text = line + 5 + strspn(line + 5, " \t");
+            size_t count = 0;
+            while (text[count] >= 32 && text[count] <= 126 && count + 1 < sizeof item->card_caption) ++count;
+            while (count && text[count - 1] == ' ') --count;
+            if (count) {
+                memcpy(item->card_caption, text, count);
+                item->card_caption[count] = '\0';
+                item->caption = item->card_caption;
+            }
+            break;
+        }
+        fclose(file);
+        return;
+    }
 }
 
 static bool load_favorites(const char *card, struct selector_item *items, int count,

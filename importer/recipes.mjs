@@ -139,6 +139,70 @@ async function shipped(zip) {
   };
 }
 
+// The MP Selector Standard (docs/STANDARD.md): a download that carries
+// mpselector.txt in its autorun folder is copied to the card as it is.
+// Returns null when the ZIP has no such file.
+async function standard(zip) {
+  const hit = zip.names().find((n) => /(^|\/)mpselector\.txt$/.test(n));
+  if (!hit) return null;
+  const from = hit.slice(0, -'mpselector.txt'.length);
+  const root = from.replace(/autorun\/$/, '');
+  const field = {};
+  for (const row of rows(await zip.read(hit))) {
+    const pair = row.match(/^([a-z]+):\s*(.*?)\s*$/);
+    if (pair && !(pair[1] in field)) field[pair[1]] = pair[2];
+  }
+  const problems = [];
+  const name = field.name || '';
+  if (!name) problems.push('name is missing. It is the title shown in Cover Flow, as in "name: My Firmware".');
+  else if (!/^[\x20-\x7e]+$/.test(name)) problems.push('name must be plain ASCII.');
+  if ('standard' in field && field.standard !== '1') problems.push('standard must be 1. That is the only version so far.');
+  const versions = (field.akai || '').split(/[\s,]+/).filter(Boolean);
+  if (!versions.length) problems.push(`akai is missing. It lists the Akai firmware versions you ran this on, as in "akai: ${AKAI}".`);
+  else if (versions.some((v) => !/^\d+(\.\d+){3}$/.test(v))) problems.push(`akai must hold only version numbers with spaces between them, such as ${AKAI}.`);
+  if ('quit' in field && !/^[\x20-\x7e]{1,37}$/.test(field.quit)) problems.push('quit must be plain ASCII, 37 characters at most.');
+  const start = field.start || '';
+  const scripts = zip.names().filter((n) => n.startsWith(from) && n.endsWith('.sh'));
+  if (!start) problems.push('start is missing. It names the script that starts your firmware, as in "start: start.sh".');
+  else if (start.startsWith('/') || start.includes('..')) problems.push('start must name a script inside the same folder as mpselector.txt.');
+  else if (!zip.has(from + start)) problems.push(`start names ${start}, which is not next to mpselector.txt.`);
+  else if (!scripts.includes(from + start)) scripts.push(from + start);
+  let text = '';
+  for (const script of scripts) {
+    const body = decode(await zip.read(script));
+    if (body.includes('\r')) problems.push(`${script.slice(from.length)} has Windows line endings. Save it with Unix (LF) line endings.`);
+    text += body.replace(/^\s*#.*$/gm, '') + '\n';
+  }
+  // The rules a file can show. The rest needs a run on an MPC.
+  const asked = text.includes('MPSELECTOR');
+  if (/\/media\/[^\s"']*autorun/.test(text)) {
+    problems.push('Rule 1: a script names a fixed card path ending in autorun. Find your folder from your own script: here=$(cd "$(dirname "$0")" && pwd).');
+  }
+  if (/proc\/(self\/)?mount/.test(text) && !/MPSELECTOR_CARD/.test(text)) {
+    problems.push('Rule 1: a script reads the mount table to find the card. Under MP Selector the card is in $MPSELECTOR_CARD and your folder is not <card>/autorun.');
+  }
+  if (/(sha256sum|md5sum|wc -c|stat )[^\n]*MPC Sample/.test(text) && !asked) {
+    problems.push('Rule 2: a script checks the Akai app by size or fingerprint. Skip that when $MPSELECTOR is set. MP Selector has already checked your akai line.');
+  }
+  if (/systemctl\s+(--\S+\s+)*(re)?start\s+ac50|\breboot\b/.test(text) && !asked) {
+    problems.push('Rule 3: a script starts the Akai app or reboots. When $MPSELECTOR is set, end your start script instead and Cover Flow comes back.');
+  }
+  if (problems.length) {
+    return { status: 'blocked', name, reason: 'This download is not up to the MP Selector Standard yet.', problems };
+  }
+  const id = name.replace(/[^A-Za-z0-9 ._-]/g, '').trim() || 'firmware';
+  const files = [];
+  for (const member of zip.names().sort()) {
+    if (member.startsWith(root) && !member.endsWith('/')) files.push([`firmware/${id}/${member.slice(root.length)}`, await zip.read(member)]);
+  }
+  return {
+    status: 'ready', id, name, home: '', version: field.version || '', tested: false, testedVersions: [], files, keep: [],
+    warn: versions.includes(AKAI)
+      ? 'It follows the MP Selector Standard. It needs MP Selector 1.3 or later on your card.'
+      : `It lists Akai firmware ${versions.join(', ')}. MP Selector runs on ${AKAI}, where its cover shows a message and does not open.`,
+  };
+}
+
 const OLD = 'It is made for Akai firmware 1.3.0.12. MP Selector runs on 1.4.0.8, so it cannot open here yet.';
 const LATER = 'It has not been set up for MP Selector yet.';
 const COPY = 'It runs as it is on MP Selector 1.2 or later. Unzip it, make a new folder inside the firmware folder on your card, and copy everything into it.';
@@ -182,6 +246,8 @@ function known(zip) {
 //   { status: 'ready', id, name, version, tested, files, keep, warn }
 //   { status: 'blocked', name, reason, problems, request }  request: worth asking Phil for
 export async function plan(zip, archiveSha, assets) {
+  const ready = await standard(zip);
+  if (ready) return ready;
   for (const recipe of READY) {
     const root = await recipe.match(zip);
     if (root == null) continue;

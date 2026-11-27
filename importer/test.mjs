@@ -126,6 +126,45 @@ test('a shipped folder with mistakes is refused, and each mistake is named', asy
   }
 });
 
+const START = '#!/bin/sh\nhere=$(cd "$(dirname "$0")" && pwd)\nsystemctl stop ac50.service\n"$here/app"\n[ -n "$MPSELECTOR" ] || systemctl start ac50.service\n';
+
+test('a download that follows the MP Selector Standard is copied as it is', async () => {
+  const zip = await zipOf({
+    'My-OS-2.0/autorun.sh': 'sh "$(dirname "$0")/autorun/start.sh"\n',
+    'My-OS-2.0/autorun/mpselector.txt': 'name:  My OS\r\nversion: 2.0\r\nstart: start.sh\r\nakai:  1.3.0.12 1.4.0.8\r\nquit: Hold SHIFT + STOP\r\n',
+    'My-OS-2.0/autorun/start.sh': START,
+    'My-OS-2.0/autorun/app': 'ELF',
+    'My-OS-2.0/Samples/kick.wav': 'RIFF',
+    // A recipe would match this file. The standard comes first.
+    'My-OS-2.0/autorun/mpcsimple': 'ELF',
+  });
+  const result = await plan(zip, 'x', assets);
+  assert.deepEqual([result.status, result.id, result.name, result.version], ['ready', 'My OS', 'My OS', '2.0']);
+  assert.match(result.warn, /Standard/);
+  assert.deepEqual(result.files.map(([path]) => path).sort(), ['Samples/kick.wav', 'autorun.sh', 'autorun/app',
+    'autorun/mpcsimple', 'autorun/mpselector.txt', 'autorun/start.sh'].map((name) => 'firmware/My OS/' + name));
+  const old = await plan(await zipOf({ 'mpselector.txt': 'name: Old\nstart: go.sh\nakai: 1.3.0.12\n', 'go.sh': 'true\n' }), 'x', assets);
+  assert.equal(old.status, 'ready');
+  assert.match(old.warn, /does not open/);
+});
+
+test('a download that misses the standard is refused, rule by rule', async () => {
+  const zip = await zipOf({
+    'autorun/mpselector.txt': 'standard: 2\nstart: go.sh\nakai: latest\nquit: ' + 'x'.repeat(40) + '\n',
+    'autorun/go.sh': '# never reboot here\r\nCARD=/media/MPC/autorun\ngrep vfat /proc/mounts\n'
+      + 'wc -c "/usr/bin/MPC Sample"\nsystemctl start ac50.service\n',
+  });
+  const result = await plan(zip, 'x', assets);
+  assert.equal(result.status, 'blocked');
+  for (const part of [/name is missing/, /standard must be 1/, /akai must hold/, /quit must be/, /Windows line endings/,
+    /fixed card path/, /mount table/, /size or fingerprint/, /starts the Akai app/]) {
+    assert.ok(result.problems.some((problem) => part.test(problem)), String(part));
+  }
+  assert.equal(result.problems.length, 9);
+  const lost = await plan(await zipOf({ 'autorun/mpselector.txt': 'name: A\nstart: ../go.sh\nakai: 1.4.0.8\n' }), 'x', assets);
+  assert.match(lost.problems[0], /inside the same folder/);
+});
+
 test('the ZIP for other browsers needs no merging: one folder for firmware, card data apart', async () => {
   const simple = await plan(await zipOf({
     'SD Card/autorun/mpcsimple': 'ELF',
