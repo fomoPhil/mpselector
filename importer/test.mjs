@@ -53,6 +53,16 @@ test('a Melodee that restores stock differently is refused', async () => {
   await assert.rejects(plan(zip, 'x', assets), /shuts down/);
 });
 
+test('a Melodee fork is not taken for Melodee', async () => {
+  const zip = await melodee({
+    'autorun/autorun.json': '{}',
+    'autorun/melodee/VERSION': 'v0.8.3-hdslave.1 409784ef85e7\n',
+  });
+  const result = await plan(zip, 'x', assets);
+  assert.equal(result.status, 'blocked');
+  assert.equal(result.request, true);
+});
+
 test('MPC Simple is found inside its wrapper folder and keeps an existing model', async () => {
   const zip = await zipOf({
     'MPC-Simple-1.0-Beta-99/SD Card/autorun/mpcsimple': 'ELF',
