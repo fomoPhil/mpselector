@@ -1,0 +1,5 @@
+name: My Firmware
+version: 1.0
+start: start.sh
+akai: 1.4.0.8
+quit: Hold SHIFT + STOP

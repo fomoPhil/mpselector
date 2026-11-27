@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Command-line form of Add Firmware.html: node importer/cli.mjs <release.zip> <card folder>
+// Command-line form of Add Firmware.html: node importer/cli.mjs <release.zip> [card folder]
+// Without a card folder it only checks the ZIP.
 import { openAsBlob } from 'node:fs';
 import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -33,14 +34,14 @@ export function folderSink(card) {
 export async function importZip(archive, card) {
   const blob = await openAsBlob(archive);
   const result = await plan(await Zip.open(blob), await sha256Blob(blob), await loadAssets());
-  if (result.status === 'ready') await apply(result, folderSink(card));
+  if (result.status === 'ready' && card) await apply(result, folderSink(card));
   return result;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [archive, card] = process.argv.slice(2);
-  if (!archive || !card) {
-    console.error('Usage: node importer/cli.mjs <release.zip> <card folder>');
+  if (!archive) {
+    console.error('Usage: node importer/cli.mjs <release.zip> [card folder]');
     process.exit(2);
   }
   try {
@@ -50,7 +51,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       for (const problem of result.problems || []) console.error('- ' + problem);
       process.exit(1);
     }
-    console.log(`Added ${result.name} ${result.version}`.trim());
+    console.log(`${card ? 'Added' : 'Ready:'} ${result.name} ${result.version}`.trim());
     if (result.warn) console.log(result.warn);
   } catch (error) {
     console.error(error.message);

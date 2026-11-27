@@ -94,11 +94,20 @@ made_for_first() {
     [ -f "$FW/$choice/akai" ] && tr -d '\r' < "$FW/$choice/akai" | sed -n '/^[0-9][0-9.]*$/{p;q;}'
 }
 
+# The MP Selector Standard: a firmware says how to open it in one small file
+# of "key: value" lines in its autorun folder.
+STANDARD=mpselector.txt
+standard() {
+    [ -f "$1/$STANDARD" ] && tr -d '\r' < "$1/$STANDARD" |
+        sed -n "s/^$2:[[:space:]]*//p" | sed -n '1s/[[:space:]]*$//p' | grep .
+}
+
 # A folder that holds another firmware's own files, unchanged, is an entry too:
-# its autorun folder, or everything its download puts on a card.
+# its autorun folder, or everything its download puts on a card. MP DOOM's
+# download keeps what goes on the card in a folder named SD.
 raw_root() {
-    for root in "$1/autorun" "$1"; do
-        if [ -f "$root/autorun.sh" ] || [ -f "$root/autorun.json" ]; then
+    for root in "$1/autorun" "$1/SD/autorun" "$1"; do
+        if [ -f "$root/$STANDARD" ] || [ -f "$root/autorun.sh" ] || [ -f "$root/autorun.json" ]; then
             printf '%s\n' "$root"
             return 0
         fi
@@ -107,10 +116,14 @@ raw_root() {
 }
 
 raw_name() {
-    for file in "$FW/$1/name" "$2/sampleboot.txt"; do
+    for file in "$FW/$1/name" "$2/$STANDARD" "$2/sampleboot.txt"; do
         [ -f "$file" ] || continue
-        IFS= read -r line < "$file" || :
-        line=$(printf '%s' "$line" | tr -d '\r')
+        if [ "$file" = "$2/$STANDARD" ]; then
+            line=$(standard "$2" name)
+        else
+            IFS= read -r line < "$file" || :
+            line=$(printf '%s' "$line" | tr -d '\r')
+        fi
         [ -z "$line" ] || { printf '%s\n' "$line"; return; }
     done
     printf '%s\n' "$1"
@@ -163,16 +176,37 @@ release_raw() {
 }
 
 run_raw() {
-    entry=$FW/$choice
+    entry=${raw%/autorun}
+    ready=
+    [ ! -f "$raw/$STANDARD" ] || ready=1
+    if [ -n "$ready" ]; then
+        # It lists the Akai firmware it was run on, and is trusted on those.
+        if [ "$(standard "$raw" standard || echo 1)" != 1 ]; then
+            message="$label needs a newer MP Selector"
+            return
+        fi
+        if [ "$BOOT_MODE" = --developer-mode ]; then
+            made=$(standard "$raw" akai | tr -s ' \t,' '\n\n\n' | grep '^[0-9][0-9.]*$')
+            if ! printf '%s\n' "$made" | grep -qxF "$AKAI"; then
+                need=$(printf '%s\n' "$made" | sed -n 1p)
+                message=${need:+Requires Akai firmware $need}
+                [ -n "$message" ] || message="Not verified on Akai firmware 1.4"
+                return
+            fi
+        fi
     # A firmware that loads itself into the Akai app fits one Akai version only.
-    if [ "$BOOT_MODE" = --developer-mode ] && grep -qs LD_PRELOAD "$raw"/*.sh; then
+    elif [ "$BOOT_MODE" = --developer-mode ] && grep -qs LD_PRELOAD "$raw"/*.sh; then
         message="Requires Akai firmware 1.3.0.12"
         return
     fi
     release_raw
     # A download for Akai 1.4 has its own autorun.sh next to its autorun folder.
     top=
-    if [ "$raw" != "$entry" ] && [ -f "$entry/autorun.sh" ]; then
+    if [ -n "$ready" ]; then
+        start=$(standard "$raw" start)
+        case "$start" in ''|/*|*..*) start=missing ;; esac
+        start=$raw/$start
+    elif [ "$raw" != "$entry" ] && [ -f "$entry/autorun.sh" ]; then
         top=1
         start=$entry/autorun.sh
     else
@@ -184,8 +218,12 @@ run_raw() {
     fi
     # Most firmware takes the folder above autorun for the card, so it runs as
     # if it were alone there. One that reads the mount table would take that
-    # mount for the card, and runs from its own folder.
-    if [ -e "$raw/sampleboot.inplace" ] || ! grep -rqs -e proc/mounts -e mountinfo "$raw"; then
+    # mount for the card, and runs from its own folder. MP DOOM reads the table
+    # only to check the card, and starts from the card's autorun folder alone.
+    # A firmware that follows the standard finds its own folder and stays in it.
+    if [ -n "$ready" ]; then
+        :
+    elif [ -e "$raw/sampleboot.inplace" ] || [ -f "$raw/mpc-doom" ] || ! grep -rqs -e proc/mounts -e mountinfo "$raw"; then
         if cover "$raw" "$SD/autorun"; then
             if [ -z "$top" ]; then
                 start=$SD/autorun/${start#"$raw"/}
@@ -197,17 +235,26 @@ run_raw() {
     # Folders its download keeps at the top of the card show up there.
     for dir in "$entry"/*/; do
         name=$(basename "$dir")
-        [ "$dir" != "$raw/" ] && [ -d "$dir" ] || continue
+        [ -z "$ready" ] && [ "$dir" != "$raw/" ] && [ -d "$dir" ] || continue
         mkdir "$SD/$name" 2>/dev/null
         [ -d "$SD/$name" ] && [ -z "$(ls -A "$SD/$name" 2>/dev/null)" ] || continue
         printf '%s\n' "$SD/$name" >> "$MADE"
         cover "${dir%/}" "$SD/$name"
     done
+    # DFOS starts only beside the Akai app it was first tried with, by its size.
+    # The program itself takes 1.3.0.12 or later, and starts on 1.4.0.8.
+    if [ -f "$raw/dfos-stock-size" ]; then
+        read -r size app < "$raw/dfos-stock-size"
+        size=$(wc -c < "$app" 2>/dev/null | tr -d ' ')
+        [ -z "$size" ] || { printf '%s %s\n' "$size" "$app" > "$RAM/stock-size" && cover "$RAM/stock-size" "$raw/dfos-stock-size"; }
+    fi
     quiet=$(holders)
     stand_in_akai
-    # sample-base firmware starts once per boot unless the start was asked for.
+    # sample-base firmware starts once per boot unless the start was asked for,
+    # and DFOS stays shut after its Stock OS button until the MPC restarts.
     # Some start scripts return at once, others stay until their app closes.
-    (cd "$(dirname "$start")" && SAMPLE_BASE_ASKED=1 exec /bin/sh "$start") >> "$log" 2>&1 &
+    (cd "$(dirname "$start")" && MPSELECTOR=1 MPSELECTOR_CARD="$SD" SAMPLE_BASE_ASKED=1 DFOS_AGAIN=1 exec /bin/sh "$start") >> "$log" 2>&1 &
+    pid=$!
     seen=
     idle=0
     waited=0
@@ -219,7 +266,13 @@ run_raw() {
             release_raw
             finish
         fi
-        if [ "$(holders)" != "$quiet" ]; then
+        if [ -n "$ready" ]; then
+            # The standard's way out: its start script ends when the user quits.
+            if ! kill -0 "$pid" 2>/dev/null && [ "$(holders)" = "$quiet" ]; then
+                wait "$pid" || message="$label stopped with an error"
+                break
+            fi
+        elif [ "$(holders)" != "$quiet" ]; then
             seen=1
             idle=0
         elif [ -n "$seen" ]; then

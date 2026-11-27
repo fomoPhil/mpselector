@@ -10,7 +10,7 @@ The whole thing on one page: [quick guide](docs/guide.png).
 
 ## Download
 
-**[Download MP-Selector-1.2.2.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.2.2.zip)**
+**[Download MP-Selector-1.3.0.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.3.0.zip)**
 
 Tested on MPC Sample firmware **1.4.0.8**. The checksum is on the [release page](https://github.com/fomoPhil/mpselector/releases/latest).
 
@@ -108,7 +108,13 @@ After a minute with nothing on screen, Cover Flow comes back and says it did not
 
 The [Add Firmware page](https://philwoolley.com/mpselector/add/) still sets up Melodee and MPC Simple so that quitting them returns to Cover Flow.
 
-A firmware can also ship its own MP Selector folder. The page adds those too, whoever made them, and they open on MP Selector 1.1 or later. Developers: see [Make your firmware work with MP Selector](docs/DEVELOPERS.md).
+### MP Selector Standard
+
+For people who make firmware. It is three rules and one small file in the download you already ship. A firmware that follows it opens from MP Selector as it is, shows how to quit under its title, and comes back to Cover Flow when you quit. Read [the MP Selector Standard](docs/STANDARD.md). Needs MP Selector 1.3.
+
+Is your favorite firmware missing from the list, or does it not come back to Cover Flow? Send that page to its developer.
+
+The older way, a `firmware/<id>/` folder shipped in the release, still works on MP Selector 1.1 or later. See [docs/DEVELOPERS.md](docs/DEVELOPERS.md).
 
 If the page does not know a firmware, it tells you to copy it in as above.
 
@@ -135,6 +141,7 @@ When you press the dial, MP Selector copies the folder into memory, because the 
 
 **What opens on 1.4.0.8.**
 
+- A download that follows the [MP Selector Standard](docs/STANDARD.md) and lists `1.4.0.8` on its `akai` line.
 - Any folder whose `akai` file lists `1.4.0.8`. The full rules are in [docs/DEVELOPERS.md](docs/DEVELOPERS.md).
 - Folders named `mp-doom`, `pad-lights`, `melodee` and `mpc-simple`, with or without an `akai` file. `melodee` and `mpc-simple` also need a `SHA256SUMS` file that lists their files.
 - A folder whose `akai` file lists only other versions shows "Requires Akai firmware" and the first version it lists. `sampqol` and `gridzilla` show that for 1.3.0.12.
