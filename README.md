@@ -10,7 +10,7 @@ The whole thing on one page: [quick guide](docs/guide.png).
 
 ## Download
 
-**[Download MP-Selector-1.2.0.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.2.0.zip)**
+**[Download MP-Selector-1.2.1.zip](https://github.com/fomoPhil/mpselector/releases/latest/download/MP-Selector-1.2.1.zip)**
 
 Tested on MPC Sample firmware **1.4.0.8**. The checksum is on the [release page](https://github.com/fomoPhil/mpselector/releases/latest).
 
@@ -75,8 +75,12 @@ For a cover, add a square picture named `cover.png` or `cover.jpg` to the same f
 
 Each of these was copied in unchanged and opened from Cover Flow on an MPC Sample running Akai 1.4.0.8.
 
+MP DOOM and DFOS need MP Selector 1.2.1. DFOS's own site says it is for Akai 1.3.0.12 and it checks for that. MP Selector 1.2.1 lets it start on 1.4.0.8, where it was tested on one MPC Sample. Its author does not support it there.
+
 | Firmware | Version |
 | --- | --- |
+| [MP DOOM](https://philwoolley.com/mpdoom) | 1.0.4 |
+| [DFOS](https://getdfos.com) | 0.1.105 Beta |
 | [Melodee](https://github.com/keremimo/melodee-sample/releases) | 0.8.3 |
 | [MPC Simple](https://mpcsimple.com) | 1.0 Beta 11 |
 | [Rhythmer OS](https://jazzyrhythmer.github.io/mpc-sample) | 0.3.0 |
@@ -86,7 +90,6 @@ Each of these was copied in unchanged and opened from Cover Flow on an MPC Sampl
 | [MPCTRACKER](https://github.com/jeffwebb-to/mpc-sample-tracker) | 0.1.0 |
 | [MPC Furnace](https://github.com/garrettjwilke/mpc-furnace) | 1.0.0 |
 | [Beat-Train](https://github.com/drose030/beat-train-mpc-sample) | 1.6 |
-| [MPC DOOM](https://github.com/jeffwebb-to/mpc-sample-doom) | 1.0.0 |
 | [MPC Cave Story](https://github.com/garrettjwilke/mpc-cavestory) | 1.0.0 |
 | [MPC TIC-80](https://github.com/garrettjwilke/mpc-tic80) | 1.0.0 |
 | [MPC Gen1Recomp](https://github.com/garrettjwilke/mpc-gen1recomp) | 1.0.1 |
