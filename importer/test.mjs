@@ -88,6 +88,13 @@ test('firmware that cannot open is named, with the reason', async () => {
   assert.match(junk.reason, /does not look like/);
 });
 
+test('DFOS is named as a 1.3.0.12 firmware', async () => {
+  const dfos = await plan(await zipOf({ 'autorun/autorun.json': '{}', 'autorun/dfos': 'ELF', 'autorun/dfos-start.sh': '#!/bin/sh\n' }), 'x', assets);
+  assert.deepEqual([dfos.status, dfos.name], ['blocked', 'DFOS']);
+  assert.match(dfos.reason, /1\.3\.0\.12/);
+  assert.ok(!dfos.request);
+});
+
 test('a release that ships its own MP Selector folder is copied as it is', async () => {
   const zip = await zipOf({
     'Thing-1.2/autorun/autorun.json': '{}',
