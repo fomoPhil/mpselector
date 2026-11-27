@@ -142,6 +142,7 @@ async function shipped(zip) {
 const OLD = 'It is made for Akai firmware 1.3.0.12. MP Selector runs on 1.4.0.8, so it cannot open here yet.';
 const LATER = 'It has not been set up for MP Selector yet.';
 const COPY = 'It runs as it is on MP Selector 1.2 or later. Unzip it, make a new folder inside the firmware folder on your card, and copy everything into it.';
+const COPY_121 = COPY.replace('1.2 or later', '1.2.1 or later');
 
 // Firmware this tool can name but not add. [marker file, name, reason].
 const KNOWN = [
@@ -156,7 +157,8 @@ const KNOWN = [
   ['autorun/libmpc_pcmfix.so', 'USB DeClick', OLD],
   ['autorun/sampleboot/', 'SampleBoot', 'It is a boot menu of its own. Use it or MP Selector on a card, not both.'],
   ['autorun/mpc-os', 'MPC 600 S', COPY],
-  ['autorun/mpc-doom', 'MP DOOM', LATER],
+  ['autorun/mpc-doom', 'MP DOOM', COPY_121],
+  ['autorun/dfos-launch.sh', 'DFOS', COPY_121],
   ['autorun/tracker.sh', 'MPCTRACKER', COPY],
   ['autorun/doom.sh', 'MPC DOOM', COPY],
   ['autorun/epicycle/', 'EPICYCLE', COPY],
