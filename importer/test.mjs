@@ -88,6 +88,13 @@ test('firmware that cannot open is named, with the reason', async () => {
   assert.match(junk.reason, /does not look like/);
 });
 
+test('Beat-Train is named from its release ZIP, whose BeatTrain folder is empty', async () => {
+  const zip = await zipOf({ 'autorun/autorun.json': '{}', 'autorun/beattrain': 'ELF', 'autorun/beattrain.sha256': 'x', LICENSE: 'x' });
+  const result = await plan(zip, 'x', assets);
+  assert.deepEqual([result.status, result.name, result.request], ['blocked', 'Beat-Train', false]);
+  assert.match(result.reason, /runs as it is/);
+});
+
 test('a release that ships its own MP Selector folder is copied as it is', async () => {
   const zip = await zipOf({
     'Thing-1.2/autorun/autorun.json': '{}',
